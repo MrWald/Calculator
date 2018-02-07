@@ -201,15 +201,10 @@ private:
 						x = sqrt(x);
 					}
 					else
-					{
-						//REDO!
-						string error("Unexpected function: ");
-						error+=func;
-							throw invalid_argument(error);
-					}
+						throw invalid_argument("Unexpected function: "+func);
 				}
 				else 
-					throw invalid_argument("Unexpected character: "+static_cast<char>(_ch));
+					throw invalid_argument(string("Unexpected character: ")+=_ch);
 			} 
 		}
         //After processing numbers/functions process operators

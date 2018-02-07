@@ -1,3 +1,5 @@
+//Created by Volodymyr Fomin on 07.02.2018
+
 #include <iostream>
 #include <string>
 #include <sstream>
