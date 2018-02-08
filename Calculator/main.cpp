@@ -17,8 +17,11 @@ int main()
 	const unsigned int commandsSize(24);
 	string commands[commandsSize]=
 	{
-		"help", "rad", "exit", "(", ")", "+", "-", "*", "/", "!", "^", "%", "&", 
-		"sin", "cos", "tg", "ctg", "asin", "acos", "atg", "actg", "ln", "log", "sqrt"
+		"help - list all available commands, functions and operators", "rad - read angle in radians or degrees", "exit - exit from the programm", 
+		"( - opening brace", ") - closing brace, optional", "+ - addition", "- - subtraction", "* - multiplication", "/ - division", 
+		"! - factorial, put in the end of expression", "^ - raise to power", "% - turn to percents", "& - modulo", 
+		"sin - sine", "cos - cosine", "tg - tangent", "ctg - cotangent", "asin - arcsine", "acos - arccosine", "atg - arctangent", "actg - arccotangent", 
+		"ln - natural logarithm", "log - logarithm to base 10", "sqrt - square root"
 	};
 	string expression;
 	Evaluator evaluator;
