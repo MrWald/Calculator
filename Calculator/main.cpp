@@ -1,18 +1,15 @@
 //Created by Volodymyr Fomin on 07/02/2018
 
-#include <iostream>
-#include <string>
 #include <sstream>
 #include "Evaluator.h"
 
 using namespace std;
 
-unsigned int Evaluator::_freeId(0);
-
 void listCommands(const string commands[], const unsigned int& size)
 {
 	for(unsigned int i(0);i<size;i++)
 		cout << commands[i] << endl;
+	return;
 }
 
 int main()

@@ -1,11 +1,13 @@
 //Created by Volodymyr Fomin on 07/02/2018
 
-#include <string>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <string>
 #include "Evaluator.h"
 
 using namespace std;
+
+unsigned int Evaluator::_freeId(0);
 
 Evaluator::Evaluator(const string& exp, const bool& rad)
 	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _rad(rad)
@@ -14,7 +16,6 @@ Evaluator::Evaluator(const string& exp, const bool& rad)
 	cout << "Evaluator ID-" << _id << " created" << endl;
 #endif
 }
-
 Evaluator::Evaluator(const Evaluator& ev)
 	: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _rad(ev._rad)
 {
@@ -22,7 +23,6 @@ Evaluator::Evaluator(const Evaluator& ev)
 	cout << "Evaluator ID-" << _id << " copied" << endl;
 #endif
 }
-
 Evaluator::~Evaluator()
 {
 #ifndef NDEBUG
@@ -42,6 +42,25 @@ Evaluator& Evaluator::operator=(const Evaluator& ev)
 	return *this;
 }
 
+const double Evaluator::toRadians(const double& deg)
+{
+	return (deg*M_PI)/180.f;
+}
+const double Evaluator::toDegrees(const double& rad)
+{
+	return (rad*180.f)/M_PI;
+}
+
+const unsigned long long Evaluator::factorial(const unsigned int& n)
+{
+	if(n==0 || n==1) return 1;
+    return n * factorial(n-1);
+}
+
+void Evaluator::nextChar()
+{
+	_ch = (++_pos < static_cast<int>(_expression.length())) ? _expression[_pos] : -1;
+}
 const bool Evaluator::eat(const char& c)
 {
 	while(_ch == ' ') 
@@ -54,32 +73,11 @@ const bool Evaluator::eat(const char& c)
 	return false;
 }
 
-void Evaluator::nextChar()
-{
-	_ch = (++_pos < static_cast<int>(_expression.length())) ? _expression[_pos] : -1;
-}
-
-const double Evaluator::toRadians(const double& deg)
-{
-	return (deg*M_PI)/180.f;
-}
-
-const double Evaluator::toDegrees(const double& rad)
-{
-	return (rad*180.f)/M_PI;
-}
-
-const unsigned long long Evaluator::factorial(const unsigned int& n)
-{
-	if(n==0 || n==1) return 1;
-    return n * factorial(n-1);
-}
-
 const double Evaluator::parse()
 {
 	nextChar();
 	//Expression evaluation
-	double x = parseExpression();
+	double x(parseExpression());
 	if (_pos < static_cast<int>(_expression.length()) && _ch!='P' && _ch!='I' && _ch!='e') 
 		throw invalid_argument(string("Unexpected character: ")+=_ch);
 	_pos = -1;
@@ -88,7 +86,6 @@ const double Evaluator::parse()
 		x=0;
 	return x;
 }
-
 const double Evaluator::parseExpression()
 {
         //Calculating operations with greater priority first
@@ -107,7 +104,6 @@ const double Evaluator::parseExpression()
             }
         }
    }
-
 const double Evaluator::parseTerm()
 	{
         //Calculate operations with greater priority first
@@ -127,7 +123,6 @@ const double Evaluator::parseTerm()
             }
         }
     }
-
 const double Evaluator::parseFactor()
 	{
         //Firstly process sign
@@ -140,7 +135,7 @@ const double Evaluator::parseFactor()
 		//The result
         double x(0);
 		//Remember position from which processing started to get a substring from the whole expression
-        int startPos = _pos;
+        int startPos(_pos);
         if (eat('('))
         {
             //Read braces
@@ -256,12 +251,20 @@ const double Evaluator::parseFactor()
 		}
         //After processing numbers/functions process operators
         if (eat('^')) 
-			x = pow(x, parseFactor()); //Raising to power
+			x = pow(x, parseExpression()); //Raising to power
         else if (eat('!')) //Factorial
         {
-          if (x<0 || x > static_cast<int>(x) ) 
+          if (x<0) 
 			   throw invalid_argument("Factorial accepts only positive integer numbers");
-           x = static_cast<double>(factorial(static_cast<unsigned int>(x)));
+		  else if(abs( x - static_cast<int>(x) ) > 1E-9)
+		  {
+			  if(abs( x - ( static_cast<int>(x)+1 ) ) > 1E-9)
+				  throw invalid_argument("Factorial accepts only positive integer numbers");
+			  else 
+				  x = static_cast<double>(factorial( static_cast<unsigned int>(x)+1 ));
+		  }
+          else 
+			  x = static_cast<double>(factorial(static_cast<unsigned int>(x)));
         } 
 		//Percents
 		else if (eat('%'))
@@ -269,9 +272,15 @@ const double Evaluator::parseFactor()
 		//Modulo
         else if (eat('&')) 
 		{
-			if (x > static_cast<int>(x) ) 
-			   throw invalid_argument("Modulo accepts only integer numbers");
-			x = static_cast<int>(x) % static_cast<int>(parseFactor());
+			if ( abs( x - static_cast<int>(x) ) >= 1E-8 ) 
+			{
+				if( abs( x - ( static_cast<int>(x)+1 ) ) > 1E-9 )
+					throw invalid_argument("Modulo accepts only integer numbers");
+				else 
+					x = ( static_cast<int>(x)+1 ) % static_cast<int>(parseExpression());
+			}
+			else
+				x = static_cast<int>(x) % static_cast<int>(parseExpression());
 		}
         return x;
     }
@@ -280,7 +289,6 @@ const string& Evaluator::getExpression() const
 {
 	return _expression;
 }
-
 void Evaluator::setExpression(const string& exp)
 {
 	_expression=exp;
@@ -292,7 +300,6 @@ bool& Evaluator::rad()
 {
 	return _rad;
 }
-
 const bool& Evaluator::rad() const
 {
 	return _rad;

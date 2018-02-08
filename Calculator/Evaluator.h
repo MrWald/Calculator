@@ -2,11 +2,26 @@
 
 #ifndef _EVALUATOR_H_
 #define _EVALUATOR_H_
+
 #include <iostream>
 
 using namespace std;
 
 class Evaluator{
+public:
+	Evaluator(const string& s="", const bool& rad=true);
+	Evaluator(const Evaluator&);
+	~Evaluator();
+
+	Evaluator& operator=(const Evaluator&);
+    
+	const string& getExpression() const;
+	void setExpression(const string&);
+
+	bool& rad();
+	const bool& rad() const;
+
+    const double parse();
 private: 
 	static unsigned int _freeId;
 	const unsigned int _id;
@@ -18,10 +33,11 @@ private:
 	//Transformation to radians/degrees
 	static const double toRadians(const double&);
 	static const double toDegrees(const double&);
+	//Factorial
+    static const unsigned long long factorial(const unsigned int&);
 
 	//Reading next char of expression
 	void nextChar();
-
 	//If passed a character we're currently reading move to the next character of expression and return true, otherwise return false
     const bool eat(const char&);
 
@@ -37,25 +53,6 @@ private:
 	const double parseExpression();
     const double parseTerm();
     const double parseFactor();
-
-    //Factorial
-    static const unsigned long long factorial(const unsigned int&);
-
-public:
-	Evaluator(const string& s="", const bool& rad=true);
-	Evaluator(const Evaluator&);
-	~Evaluator();
-
-	Evaluator& operator=(const Evaluator&);
-    
-	const string& getExpression() const;
-
-	void setExpression(const string&);
-
-	bool& rad();
-
-	const bool& rad() const;
-    const double parse();
 };
 
 #endif
