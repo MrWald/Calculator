@@ -25,6 +25,7 @@ public:
 private: 
 	static unsigned int _freeId;
 	const unsigned int _id;
+	static const double _eps;
 	int _pos; 
 	char _ch;
     string _expression;
@@ -34,7 +35,7 @@ private:
 	static const double toRadians(const double&);
 	static const double toDegrees(const double&);
 	//Factorial
-    static const unsigned long long factorial(const unsigned int&);
+    static const unsigned long long int factorial(const unsigned int&);
 
 	//Reading next char of expression
 	void nextChar();

@@ -8,6 +8,7 @@
 using namespace std;
 
 unsigned int Evaluator::_freeId(0);
+const double Evaluator::_eps(1E-9);
 
 Evaluator::Evaluator(const string& exp, const bool& rad)
 	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _rad(rad)
@@ -51,7 +52,7 @@ const double Evaluator::toDegrees(const double& rad)
 	return (rad*180.f)/M_PI;
 }
 
-const unsigned long long Evaluator::factorial(const unsigned int& n)
+const unsigned long long int Evaluator::factorial(const unsigned int& n)
 {
 	if(n==0 || n==1) return 1;
     return n * factorial(n-1);
@@ -82,7 +83,7 @@ const double Evaluator::parse()
 		throw invalid_argument(string("Unexpected character: ")+=_ch);
 	_pos = -1;
 	_ch = 0;
-	if(abs(x)<1E-9)
+	if(abs(x)<_eps)
 		x=0;
 	return x;
 }
@@ -231,17 +232,11 @@ const double Evaluator::parseFactor()
 						x = toDegrees(atan(1 / x));
 				}
 				else if(!func.compare("ln"))
-				{
 					x = log(x);
-				}
 				else if(!func.compare("log"))
-				{
 					x = log10(x);
-				}
 				else if(!func.compare("sqrt"))
-				{
 					x = sqrt(x);
-				}
 				else
 					throw invalid_argument("Unexpected function: "+func);
 			}
@@ -256,9 +251,9 @@ const double Evaluator::parseFactor()
     {
         if (x<0) 
 			throw invalid_argument("Factorial accepts only positive integer numbers");
-		else if(abs( x - static_cast<int>(x) ) > 1E-9)
+		else if(abs( x - static_cast<int>(x) ) > _eps)
 		{
-			if(abs( x - ( static_cast<int>(x)+1 ) ) > 1E-9)
+			if(abs( x - ( static_cast<int>(x)+1 ) ) > _eps)
 				throw invalid_argument("Factorial accepts only positive integer numbers");
 			else 
 				x = static_cast<double>(factorial( static_cast<unsigned int>(x)+1 ));
@@ -272,9 +267,9 @@ const double Evaluator::parseFactor()
 	//Modulo
     else if (eat('&')) 
 	{
-		if ( abs( x - static_cast<int>(x) ) >= 1E-8 ) 
+		if ( abs( x - static_cast<int>(x) ) > _eps ) 
 		{
-			if( abs( x - ( static_cast<int>(x)+1 ) ) > 1E-9 )
+			if( abs( x - ( static_cast<int>(x)+1 ) ) > _eps )
 				throw invalid_argument("Modulo accepts only integer numbers");
 			else 
 				x = ( static_cast<int>(x)+1 ) % static_cast<int>(parseExpression());
