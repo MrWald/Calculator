@@ -132,7 +132,6 @@ const double Evaluator::parseFactor()
 		return parseFactor();
     if (eat('-')) 
 		return -parseFactor();
-	const string pi("3.14159265358979323846"), e("2.71828182845904523536");
 	//The result
     double x(0);
 	//Remember position from which processing started to get a substring from the whole expression
@@ -150,19 +149,7 @@ const double Evaluator::parseFactor()
         //If constant is read -> replace with number and process it again
 		if ((_ch >= '0' && _ch <= '9') || _ch == '.' || (_ch == 'P' && _expression[_expression.find(_ch)+1]=='I') || _ch == 'e') 
 		{
-            if (_ch == 'P' && _expression[_expression.find('P')+1]=='I') 
-				_expression = _expression.replace(
-				_expression.find('P'), pi.length(), 
-				pi+_expression.substr(_expression.find('I')+1, _expression.length()));
-            else if (_ch == 'e') 
-				_expression = _expression.replace(
-				_expression.find("e"), e.length(), 
-				e+_expression.substr(_expression.find('e')+1, _expression.length()));
-            _ch = _expression[_pos];
-            while ((_ch >= '0' && _ch <= '9') || _ch == '.') 
-				nextChar();
-			//Parsing read number
-            x = atof((_expression.substr(startPos, _pos-startPos)).c_str());
+            x = parseNumber(startPos);
         } 
 		else 
 		{
@@ -171,113 +158,142 @@ const double Evaluator::parseFactor()
             //If appropriate function hadn't been found -> throw an exception
             if (_ch >= 'a' && _ch <= 'z') 
 			{
-                while (_ch >= 'a' && _ch <= 'z') 
-					nextChar();
-                string func(_expression.substr(startPos, _pos-startPos));
-                x = parseFactor();
-				if(!func.compare("sin"))
-				{
-					if (_rad) 
-						x = sin(x);
-					else 
-						x = sin(toRadians(x));
-				}
-				else if(!func.compare("cos"))
-				{
-					if (_rad) 
-						x = cos(x);
-					else
-						x = cos(toRadians(x));
-				}
-				else if(!func.compare("tg"))
-				{
-					if (_rad) 
-						x = tan(x);
-					else 
-						x = tan(toRadians(x));
-				}
-				else if(!func.compare("ctg"))
-				{
-					if (_rad) 
-						x = 1 / tan(x);
-					else 
-						x = 1 / tan(toRadians(x));
-				}
-				else if(!func.compare("asin"))
-				{
-					if (_rad) 
-						x = asin(x);
-					else 
-						x = toDegrees(asin(x));
-				}
-				else if(!func.compare("acos"))
-				{
-					if (_rad) 
-						x = acos(x);
-					else 
-						x = toDegrees(acos(x));
-				}
-				else if(!func.compare("atg"))
-				{
-					if (_rad)
-						x = atan(x);
-					else 
-						x = toDegrees(atan(x));
-				}
-				else if(!func.compare("actg"))
-				{
-					if (_rad) 
-						x = atan(1 / x);
-					else 
-						x = toDegrees(atan(1 / x));
-				}
-				else if(!func.compare("ln"))
-					x = log(x);
-				else if(!func.compare("log"))
-					x = log10(x);
-				else if(!func.compare("sqrt"))
-					x = sqrt(x);
-				else
-					throw invalid_argument("Unexpected function: "+func);
+                x = parseFunction(startPos);
 			}
 			else 
 				throw invalid_argument(string("Unexpected character: ")+=_ch);
 		} 
 	}
     //After processing numbers/functions process operators
-    if (eat('^')) 
-		x = pow(x, parseExpression()); //Raising to power
+    x = parseOperator(x);
+    return x;
+}
+const double Evaluator::parseNumber(const int& startPos)
+{
+	const string pi("3.14159265358979323846"), e("2.71828182845904523536");
+	if (_ch == 'P' && _expression[_expression.find('P')+1]=='I') 
+		_expression = _expression.replace(
+			_expression.find('P'), pi.length(), 
+			pi+_expression.substr(_expression.find('I')+1, _expression.length()));
+    else if (_ch == 'e') 
+		_expression = _expression.replace(
+			_expression.find("e"), e.length(), 
+			e+_expression.substr(_expression.find('e')+1, _expression.length()));
+    _ch = _expression[_pos];
+    while ((_ch >= '0' && _ch <= '9') || _ch == '.') 
+		nextChar();
+	//Parsing read number
+	return atof((_expression.substr(startPos, _pos-startPos)).c_str());
+}
+const double Evaluator::parseFunction(const int& startPos)
+{
+	double res(0);
+	while (_ch >= 'a' && _ch <= 'z') 
+		nextChar();
+    string func(_expression.substr(startPos, _pos-startPos));
+    res = parseFactor();
+	if(!func.compare("sin"))
+	{
+		if (_rad) 
+			res = sin(res);
+		else 
+			res = sin(toRadians(res));
+	}
+	else if(!func.compare("cos"))
+	{
+		if (_rad) 
+			res = cos(res);
+		else
+			res = cos(toRadians(res));
+	}
+	else if(!func.compare("tg"))
+	{
+		if (_rad) 
+			res = tan(res);
+		else 
+			res = tan(toRadians(res));
+	}
+	else if(!func.compare("ctg"))
+	{
+		if (_rad) 
+			res = 1 / tan(res);
+		else 
+			res = 1 / tan(toRadians(res));
+	}
+	else if(!func.compare("asin"))
+	{
+		if (_rad) 
+			res = asin(res);
+		else 
+			res = toDegrees(asin(res));
+	}
+	else if(!func.compare("acos"))
+	{
+		if (_rad) 
+			res = acos(res);
+		else 
+			res = toDegrees(acos(res));
+	}
+	else if(!func.compare("atg"))
+	{
+		if (_rad)
+			res = atan(res);
+		else 
+			res = toDegrees(atan(res));
+	}
+	else if(!func.compare("actg"))
+	{
+		if (_rad) 
+			res = atan(1 / res);
+		else 
+			res = toDegrees(atan(1 / res));
+	}
+	else if(!func.compare("ln"))
+		res = log(res);
+	else if(!func.compare("log"))
+		res = log10(res);
+	else if(!func.compare("sqrt"))
+		res = sqrt(res);
+	else
+		throw invalid_argument("Unexpected function: "+func);
+	return res;
+}
+const double Evaluator::parseOperator(const double& calculated)
+{
+	double res(calculated);
+	if (eat('^')) 
+		res = pow(res, parseExpression()); //Raising to power
     else if (eat('!')) //Factorial
     {
-        if (x<0) 
+        if (calculated<0) 
 			throw invalid_argument("Factorial accepts only positive integer numbers");
-		else if(abs( x - static_cast<int>(x) ) > _eps)
+		else if(abs( calculated - static_cast<int>(res) ) > _eps)
 		{
-			if(abs( x - ( static_cast<int>(x)+1 ) ) > _eps)
+			if(abs( res - ( static_cast<int>(res)+1 ) ) > _eps)
 				throw invalid_argument("Factorial accepts only positive integer numbers");
 			else 
-				x = static_cast<double>(factorial( static_cast<unsigned int>(x)+1 ));
+				res = static_cast<double>(factorial( static_cast<unsigned int>(res)+1 ));
 		}
         else 
-			x = static_cast<double>(factorial(static_cast<unsigned int>(x)));
+			res = static_cast<double>(factorial(static_cast<unsigned int>(res)));
     } 
 	//Percents
 	else if (eat('%'))
-		x = x / 100;
+		res /= 100;
 	//Modulo
     else if (eat('&')) 
 	{
-		if ( abs( x - static_cast<int>(x) ) > _eps ) 
+		if ( abs( calculated - static_cast<int>(res) ) > _eps ) 
 		{
-			if( abs( x - ( static_cast<int>(x)+1 ) ) > _eps )
+			if( abs( calculated - ( static_cast<int>(res)+1 ) ) > _eps )
 				throw invalid_argument("Modulo accepts only integer numbers");
 			else 
-				x = ( static_cast<int>(x)+1 ) % static_cast<int>(parseExpression());
+				res = ( static_cast<int>(res)+1 ) % static_cast<int>(parseExpression());
 		}
 		else
-			x = static_cast<int>(x) % static_cast<int>(parseExpression());
+			res = static_cast<int>(res) % static_cast<int>(parseExpression());
 	}
-    return x;
+	return res;
 }
 
 const string& Evaluator::getExpression() const

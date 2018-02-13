@@ -27,7 +27,7 @@ int main()
 	Evaluator evaluator;
 	while(true)
 	{
-		cout << "Enter command or expression" << endl;
+		cout << "\nEnter command or expression" << endl;
 		getline(cin, expression);
 		if(!expression.compare("exit"))
 			break;

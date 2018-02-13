@@ -54,6 +54,9 @@ private:
 	const double parseExpression();
     const double parseTerm();
     const double parseFactor();
+	const double parseNumber(const int&);
+	const double parseFunction(const int&);
+	const double parseOperator(const double&);
 };
 
 #endif
