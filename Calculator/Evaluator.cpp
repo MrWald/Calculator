@@ -43,26 +43,26 @@ Evaluator& Evaluator::operator=(const Evaluator& ev)
 	return *this;
 }
 
-const double Evaluator::toRadians(const double& deg)
+const double Evaluator::toRadians(const double deg)
 {
 	return (deg*M_PI)/180.f;
 }
-const double Evaluator::toDegrees(const double& rad)
+const double Evaluator::toDegrees(const double rad)
 {
 	return (rad*180.f)/M_PI;
 }
 
-const unsigned long long int Evaluator::factorial(const unsigned int& n)
+const unsigned long long int Evaluator::factorial(const unsigned int n)
 {
 	if(n==0 || n==1) return 1;
     return n * factorial(n-1);
 }
 
-void Evaluator::nextChar()
+void Evaluator::nextChar() const
 {
 	_ch = (++_pos < static_cast<int>(_expression.length())) ? _expression[_pos] : -1;
 }
-const bool Evaluator::eat(const char& c)
+const bool Evaluator::eat(const char& c) const
 {
 	while(_ch == ' ') 
 		nextChar();
@@ -74,7 +74,7 @@ const bool Evaluator::eat(const char& c)
 	return false;
 }
 
-const double Evaluator::parse()
+const double Evaluator::parse() const
 {
 	nextChar();
 	//Expression evaluation
@@ -87,7 +87,7 @@ const double Evaluator::parse()
 		x=0;
 	return x;
 }
-const double Evaluator::parseExpression()
+const double Evaluator::parseExpression() const
 {
     //Calculating operations with greater priority first
     double x(parseTerm());
@@ -105,7 +105,7 @@ const double Evaluator::parseExpression()
         }
     }
 }
-const double Evaluator::parseTerm()
+const double Evaluator::parseTerm() const
 {
     //Calculate operations with greater priority first
     double x(parseFactor());
@@ -124,7 +124,7 @@ const double Evaluator::parseTerm()
         }
     }
 }
-const double Evaluator::parseFactor()
+const double Evaluator::parseFactor() const
 {
     //Firstly process sign
 	//Return later evaluated result with appropriate sign
@@ -168,7 +168,7 @@ const double Evaluator::parseFactor()
     x = parseOperator(x);
     return x;
 }
-const double Evaluator::parseNumber(const int& startPos)
+const double Evaluator::parseNumber(const int startPos) const
 {
 	const string pi("3.14159265358979323846"), e("2.71828182845904523536");
 	if (_ch == 'P' && _expression[_expression.find('P')+1]=='I') 
@@ -185,7 +185,7 @@ const double Evaluator::parseNumber(const int& startPos)
 	//Parsing read number
 	return atof((_expression.substr(startPos, _pos-startPos)).c_str());
 }
-const double Evaluator::parseFunction(const int& startPos)
+const double Evaluator::parseFunction(const int startPos) const
 {
 	double res(0);
 	while (_ch >= 'a' && _ch <= 'z') 
@@ -194,59 +194,51 @@ const double Evaluator::parseFunction(const int& startPos)
     res = parseFactor();
 	if(!func.compare("sin"))
 	{
-		if (_rad) 
-			res = sin(res);
-		else 
-			res = sin(toRadians(res));
+		if (!_rad) 
+			res = toRadians(res);
+		res = sin(res);
 	}
 	else if(!func.compare("cos"))
 	{
-		if (_rad) 
-			res = cos(res);
-		else
-			res = cos(toRadians(res));
+		if (!_rad)
+			res = toRadians(res);
+		res = cos(res);
 	}
 	else if(!func.compare("tg"))
 	{
-		if (_rad) 
-			res = tan(res);
-		else 
-			res = tan(toRadians(res));
+		if (!_rad)
+			res = toRadians(res);
+		res = tan(res);
 	}
 	else if(!func.compare("ctg"))
 	{
-		if (_rad) 
-			res = 1 / tan(res);
-		else 
-			res = 1 / tan(toRadians(res));
+		if (!_rad) 
+			res=toRadians(res);
+		res = 1 / tan(res);
 	}
 	else if(!func.compare("asin"))
 	{
-		if (_rad) 
-			res = asin(res);
-		else 
-			res = toDegrees(asin(res));
+		res = asin(res);
+		if(!_rad)
+			res = toDegrees(res);
 	}
 	else if(!func.compare("acos"))
 	{
-		if (_rad) 
-			res = acos(res);
-		else 
-			res = toDegrees(acos(res));
+		res = acos(res);
+		if(!_rad) 
+			res = toDegrees(res);
 	}
 	else if(!func.compare("atg"))
 	{
-		if (_rad)
-			res = atan(res);
-		else 
-			res = toDegrees(atan(res));
+		res = atan(res);
+		if(!_rad) 
+			res = toDegrees(res);
 	}
 	else if(!func.compare("actg"))
 	{
-		if (_rad) 
-			res = atan(1 / res);
-		else 
-			res = toDegrees(atan(1 / res));
+		res = atan(1 / res);
+		if(!_rad) 
+			res = toDegrees(res);
 	}
 	else if(!func.compare("ln"))
 		res = log(res);
@@ -255,10 +247,10 @@ const double Evaluator::parseFunction(const int& startPos)
 	else if(!func.compare("sqrt"))
 		res = sqrt(res);
 	else
-		throw invalid_argument("Unexpected function: "+func);
+		throw invalid_argument("Unexpected function: " + func);
 	return res;
 }
-const double Evaluator::parseOperator(const double& calculated)
+const double Evaluator::parseOperator(const double calculated) const
 {
 	double res(calculated);
 	if (eat('^')) 
@@ -307,11 +299,7 @@ void Evaluator::setExpression(const string& exp)
 	_pos=-1;
 }
 
-bool& Evaluator::rad()
-{
-	return _rad;
-}
-const bool& Evaluator::rad() const
+bool& Evaluator::rad() const
 {
 	return _rad;
 }

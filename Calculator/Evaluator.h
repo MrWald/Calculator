@@ -18,29 +18,28 @@ public:
 	const string& getExpression() const;
 	void setExpression(const string&);
 
-	bool& rad();
-	const bool& rad() const;
+	bool& rad() const;
 
-    const double parse();
+    const double parse() const;
 private: 
 	static unsigned int _freeId;
 	const unsigned int _id;
 	static const double _eps;
-	int _pos; 
-	char _ch;
+	mutable int _pos; 
+	mutable char _ch;
     string _expression;
-    bool _rad;
+    mutable bool _rad;
 
 	//Transformation to radians/degrees
-	static const double toRadians(const double&);
-	static const double toDegrees(const double&);
+	static const double toRadians(const double);
+	static const double toDegrees(const double);
 	//Factorial
-    static const unsigned long long int factorial(const unsigned int&);
+    static const unsigned long long int factorial(const unsigned int);
 
 	//Reading next char of expression
-	void nextChar();
+	void nextChar() const;
 	//If passed a character we're currently reading move to the next character of expression and return true, otherwise return false
-    const bool eat(const char&);
+    const bool eat(const char&) const;
 
 	/*
 	Priorities:
@@ -51,12 +50,12 @@ private:
 		5.Multiplication/Division
 		6.Addition/Subtraction
      */
-	const double parseExpression();
-    const double parseTerm();
-    const double parseFactor();
-	const double parseNumber(const int&);
-	const double parseFunction(const int&);
-	const double parseOperator(const double&);
+	const double parseExpression() const;
+    const double parseTerm() const;
+    const double parseFactor() const;
+	const double parseNumber(const int) const;
+	const double parseFunction(const int) const;
+	const double parseOperator(const double) const;
 };
 
 #endif
