@@ -4,14 +4,68 @@
 #include <math.h>
 #include <string>
 #include "Evaluator.h"
+
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
-using namespace std;
-
 unsigned int Evaluator::_freeId(0);
 const double Evaluator::_eps(1E-9);
+unsigned int Evaluator::EvaluatorException::_freeId(0);
+Evaluator::EvaluatorException Evaluator::_error("");
+
+#pragma region EvaluatorException
+Evaluator::EvaluatorException::EvaluatorException(const string& message)
+	: _id(++_freeId), _message(message)
+{
+#ifndef NDEBUG
+	cout << "EvaluatorException ID-" << _id << " created" << endl;
+#endif
+}
+
+Evaluator::EvaluatorException::EvaluatorException(const EvaluatorException& exception)
+	: _id(++_freeId), _message(exception._message)
+{
+#ifndef NDEBUG
+	cout << "EvaluatorException ID-" << _id << " copied" << endl;
+#endif
+}
+
+Evaluator::EvaluatorException::~EvaluatorException()
+{
+#ifndef NDEBUG
+	cout << "EvaluatorException ID-" << _id << " destroyed" << endl;
+#endif
+}
+
+Evaluator::EvaluatorException& Evaluator::EvaluatorException::operator=(const EvaluatorException& exception)
+{
+	if(this != &exception)
+	{
+		_message = exception._message;
+	}
+	return *this;
+}
+
+const string& Evaluator::EvaluatorException::error() const
+{
+	return _message;
+}
+
+string& Evaluator::EvaluatorException::error()
+{
+	return _message;
+}
+
+const unsigned int& Evaluator::EvaluatorException::getId() const
+{
+	return _id;
+}
+const unsigned int& Evaluator::EvaluatorException::amount()
+{
+	return _freeId;
+}
+#pragma endregion
 
 Evaluator::Evaluator(const string& exp, const bool& rad)
 	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _rad(rad)
@@ -84,11 +138,19 @@ const bool Evaluator::eat(const char& c) const
 
 const double Evaluator::parse() const
 {
+	if(!_expression.compare(""))
+	{
+		_error.error()="Expression undefined";
+		throw &_error;
+	}
 	nextChar();
 	//Expression evaluation
 	double x(parseExpression());
 	if (_pos < static_cast<int>(_expression.length()) && _ch!='P' && _ch!='I' && _ch!='e') 
-		throw invalid_argument(string("Unexpected character: ")+=_ch);
+	{
+		_error.error() = string("Unexpected character: ")+=_ch;
+		throw &_error;
+	}
 	_pos = -1;
 	_ch = 0;
 	if(abs(x)<_eps)
@@ -155,7 +217,7 @@ const double Evaluator::parseFactor() const
 	{
         //If currently read char is a number move through expression until come across a non-digit, not dot or not letters responsible for constants
         //If constant is read -> replace with number and process it again
-		if ((_ch >= '0' && _ch <= '9') || _ch == '.' || (_ch == 'P' && _expression[_pos+1]=='I') || _ch == 'e') 
+		if ((_ch >= '0' && _ch <= '9') || _ch == '.' || (_ch == 'p' && _expression[_pos+1] == 'i') || (_ch == 'P' && _expression[_pos+1] == 'I') || _ch == 'e' || _ch == 'E') 
 		{
             x = parseNumber(startPos);
         } 
@@ -169,7 +231,10 @@ const double Evaluator::parseFactor() const
                 x = parseFunction(startPos);
 			}
 			else 
-				throw invalid_argument(string("Unexpected character: ")+=_ch);
+			{
+				_error.error() = string("Unexpected character: ")+=_ch;
+				throw &_error;
+			}
 		} 
 	}
     //After processing numbers/functions process operators
@@ -179,13 +244,13 @@ const double Evaluator::parseFactor() const
 const double Evaluator::parseNumber(const int startPos) const
 {
 	double res(0);
-	if (_ch == 'P' && _expression[_pos+1]=='I') 
+	if ((_ch == 'P' && _expression[_pos+1] == 'I') || (_ch == 'p' && _expression[_pos+1] == 'i')) 
 	{
 		res = M_PI;
 		nextChar();
 		nextChar();
 	}
-    else if (_ch == 'e') 
+    else if (_ch == 'e' || _ch == 'E') 
 	{
 		res = M_E;
 		nextChar();
@@ -262,7 +327,10 @@ const double Evaluator::parseFunction(const int startPos) const
 	else if(!func.compare("sqrt"))
 		res = sqrt(res);
 	else
-		throw invalid_argument("Unexpected function: " + func);
+	{
+		_error.error()="Unexpected function: " + func;
+		throw &_error;
+	}
 	return res;
 }
 const double Evaluator::parseOperator(const double calculated) const
@@ -272,12 +340,18 @@ const double Evaluator::parseOperator(const double calculated) const
 		res = pow(res, parseExpression()); //Raising to power
     else if (eat('!')) //Factorial
     {
-        if (calculated<0) 
-			throw invalid_argument("Factorial accepts only positive integer numbers");
+        if (calculated<0)
+		{
+			_error.error() = "Factorial accepts only positive integer numbers";
+			throw &_error;
+		}
 		else if(abs( calculated - static_cast<int>(res) ) > _eps)
 		{
 			if(abs( res - ( static_cast<int>(res)+1 ) ) > _eps)
-				throw invalid_argument("Factorial accepts only positive integer numbers");
+			{
+				_error.error() = "Factorial accepts only positive integer numbers";
+				throw &_error;
+			}
 			else 
 				res = static_cast<double>(factorial( static_cast<unsigned int>(res)+1 ));
 		}
@@ -293,7 +367,10 @@ const double Evaluator::parseOperator(const double calculated) const
 		if ( abs( calculated - static_cast<int>(res) ) > _eps ) 
 		{
 			if( abs( calculated - ( static_cast<int>(res)+1 ) ) > _eps )
-				throw invalid_argument("Modulo accepts only integer numbers");
+			{
+				_error.error() = "Modulo accepts only integer numbers";
+				throw &_error;
+			}
 			else 
 				res = ( static_cast<int>(res)+1 ) % static_cast<int>(parseExpression());
 		}

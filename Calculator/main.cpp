@@ -48,8 +48,9 @@ int main()
 				evaluator.setExpression(expression);
 				cout << evaluator << endl;
 			}
-			catch(invalid_argument e){
-				cerr << e.what() << endl;
+			catch(const Evaluator::EvaluatorException * const e)
+			{
+				cerr << e->error() << endl;
 				evaluator.setExpression("");
 				cout << "Enter 'help' if you forgot appropriate expressions" << endl;
 			}

@@ -8,7 +8,24 @@ using namespace std;
 class Evaluator
 {
 public:
-	Evaluator(const string& exp="", const bool& rad=true);
+	class EvaluatorException
+	{
+	public:
+		explicit EvaluatorException(const string& error="");
+		EvaluatorException(const EvaluatorException&);
+		~EvaluatorException();
+		EvaluatorException& operator=(const EvaluatorException& exception);
+		const string& error() const;
+		string& error();
+		const unsigned int& getId() const;
+		static const unsigned int& amount();
+	private:
+		static unsigned int _freeId;
+		const unsigned int _id;
+		string _message;
+	};
+
+	explicit Evaluator(const string& exp="", const bool& rad=true);
 	Evaluator(const Evaluator&);
 	~Evaluator();
 
@@ -23,6 +40,7 @@ public:
 
     const double parse() const;
 private: 
+	static EvaluatorException _error;
 	static unsigned int _freeId;
 	const unsigned int _id;
 	static const double _eps;
