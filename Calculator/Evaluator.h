@@ -14,6 +14,8 @@ public:
 	~Evaluator();
 
 	Evaluator& operator=(const Evaluator&);
+
+	operator double();
     
 	const string& getExpression() const;
 	void setExpression(const string&);

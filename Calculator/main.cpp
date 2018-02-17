@@ -45,7 +45,7 @@ int main()
 			try
 			{
 				evaluator.setExpression(expression);
-				cout << evaluator.parse() << endl;
+				cout << evaluator << endl;
 			}
 			catch(invalid_argument e){
 				cerr << e.what() << endl;

@@ -43,6 +43,11 @@ Evaluator& Evaluator::operator=(const Evaluator& ev)
 	return *this;
 }
 
+Evaluator::operator double()
+{
+	return parse();
+}
+
 const double Evaluator::toRadians(const double deg)
 {
 	return (deg*M_PI)/180.f;
@@ -147,7 +152,7 @@ const double Evaluator::parseFactor() const
 	{
         //If currently read char is a number move through expression until come across a non-digit, not dot or not letters responsible for constants
         //If constant is read -> replace with number and process it again
-		if ((_ch >= '0' && _ch <= '9') || _ch == '.' || (_ch == 'P' && _expression[_expression.find(_ch)+1]=='I') || _ch == 'e') 
+		if ((_ch >= '0' && _ch <= '9') || _ch == '.' || (_ch == 'P' && _expression[_pos+1]=='I') || _ch == 'e') 
 		{
             x = parseNumber(startPos);
         } 
@@ -170,20 +175,27 @@ const double Evaluator::parseFactor() const
 }
 const double Evaluator::parseNumber(const int startPos) const
 {
-	const string pi("3.14159265358979323846"), e("2.71828182845904523536");
-	if (_ch == 'P' && _expression[_expression.find('P')+1]=='I') 
-		_expression = _expression.replace(
-			_expression.find('P'), pi.length(), 
-			pi+_expression.substr(_expression.find('I')+1, _expression.length()));
-    else if (_ch == 'e') 
-		_expression = _expression.replace(
-			_expression.find("e"), e.length(), 
-			e+_expression.substr(_expression.find('e')+1, _expression.length()));
-    _ch = _expression[_pos];
-    while ((_ch >= '0' && _ch <= '9') || _ch == '.') 
+	double res(0);
+	if (_ch == 'P' && _expression[_pos+1]=='I') 
+	{
+		res = M_PI;
 		nextChar();
-	//Parsing read number
-	return atof((_expression.substr(startPos, _pos-startPos)).c_str());
+		nextChar();
+	}
+    else if (_ch == 'e') 
+	{
+		res = M_E;
+		nextChar();
+	}
+	else
+	{
+		_ch = _expression[_pos];
+		while ((_ch >= '0' && _ch <= '9') || _ch == '.') 
+			nextChar();
+		//Parsing read number
+		res = atof((_expression.substr(startPos, _pos-startPos)).c_str());
+	}
+	return res;
 }
 const double Evaluator::parseFunction(const int startPos) const
 {
