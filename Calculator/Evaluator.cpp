@@ -4,6 +4,9 @@
 #include <math.h>
 #include <string>
 #include "Evaluator.h"
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 using namespace std;
 

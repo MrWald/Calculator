@@ -3,13 +3,12 @@
 #ifndef _EVALUATOR_H_
 #define _EVALUATOR_H_
 
-#include <iostream>
-
 using namespace std;
 
-class Evaluator{
+class Evaluator
+{
 public:
-	Evaluator(const string& s="", const bool& rad=true);
+	Evaluator(const string& exp="", const bool& rad=true);
 	Evaluator(const Evaluator&);
 	~Evaluator();
 

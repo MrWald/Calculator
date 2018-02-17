@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include "Evaluator.h"
+#include <iostream>
 
 using namespace std;
 
