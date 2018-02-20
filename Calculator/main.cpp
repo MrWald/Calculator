@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void listCommands(const string (&commands)[24], const unsigned int& size)
+void listCommands(const string commands[], const unsigned int& size)
 {
 	for(unsigned int i(0);i<size;i++)
 		cout << commands[i] << endl;

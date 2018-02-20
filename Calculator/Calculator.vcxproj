@@ -62,9 +62,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Evaluator.h" />
+    <ClInclude Include="HashMap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Evaluator.cpp" />
+    <ClCompile Include="HashMap.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
