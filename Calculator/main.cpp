@@ -37,8 +37,8 @@ int main()
 		}
 		else if(!expression.compare("rad"))
 		{
-			Evaluator::rad() = !Evaluator::rad();
-			cout << "Radians turned " << (Evaluator::rad()?"on":"off") << endl;
+			evaluator.rad() = !evaluator.rad();
+			cout << "Radians turned " << (evaluator.rad()?"on":"off") << endl;
 		}
 		else
 		{

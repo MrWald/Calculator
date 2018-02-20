@@ -12,7 +12,6 @@
 unsigned int Evaluator::_freeId(0);
 unsigned int Evaluator::EvaluatorException::_freeId(0);
 template<class Key, class Value> unsigned int HashMap<Key, Value>::_freeID = 0;
-bool Evaluator::_rad(true);
 const double Evaluator::_eps(1E-9);
 Evaluator::EvaluatorException Evaluator::_error("");
 const HashMap<string, Evaluator::Function> Evaluator::_functions(getMap());
@@ -71,14 +70,14 @@ const unsigned int& Evaluator::EvaluatorException::amount()
 #pragma endregion
 
 Evaluator::Evaluator(const string& exp, const bool& rad)
-	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp)
+	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _rad(rad)
 {
 #ifndef NDEBUG
 	cout << "Evaluator ID-" << _id << " created" << endl;
 #endif
 }
 Evaluator::Evaluator(const Evaluator& ev)
-	: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression)
+	: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _rad(ev._rad)
 {
 #ifndef NDEBUG
 	cout << "Evaluator ID-" << _id << " copied" << endl;
@@ -277,65 +276,13 @@ const double Evaluator::parseFunction(const int startPos) const
     res = parseFactor();
 	try
 	{
-		res = _functions[func](res);
+		res = _functions[func](res, _rad);
 	}
 	catch(...)
 	{
-
-	}
-	/*if(!func.compare("sin"))
-	{
-		if (!_rad) 
-			res = toRadians(res);
-		res = sin(res);
-	}
-	else if(!func.compare("cos"))
-	{
-		if (!_rad)
-			res = toRadians(res);
-		res = cos(res);
-	}
-	else if(!func.compare("tg"))
-	{
-		if (!_rad)
-			res = toRadians(res);
-		res = tan(res);
-	}
-	else if(!func.compare("ctg"))
-	{
-		if (!_rad) 
-			res=toRadians(res);
-		res = 1 / tan(res);
-	}
-	else if(!func.compare("asin"))
-	{
-		res = asin(res);
-		if(!_rad)
-			res = toDegrees(res);
-	}
-	else if(!func.compare("acos"))
-	{
-		res = acos(res);
-		if(!_rad) 
-			res = toDegrees(res);
-	}
-	else if(!func.compare("atg"))
-	{
-		res = atan(res);
-		if(!_rad) 
-			res = toDegrees(res);
-	}
-	else if(!func.compare("actg"))
-	{
-		res = atan(1 / res);
-		if(!_rad) 
-			res = toDegrees(res);
-	}
-	else
-	{
 		_error.error()="Unexpected function: " + func;
 		throw &_error;
-	}*/
+	}
 	return res;
 }
 const double Evaluator::parseOperator(const double calculated) const
@@ -401,9 +348,9 @@ bool& Evaluator::rad()
 	return _rad;
 }
 
-HashMap<string, Evaluator::Function> Evaluator::getMap()
+const HashMap<string, Evaluator::Function> Evaluator::getMap()
 {
 	const string names[11] = {"sin", "cos", "tg", "ctg", "asin", "acos", "atg", "actg", "ln", "log", "sqrt"};
-	const Function funcs[11] = {&sin, &cos, &tan, &ctan, &asin, &acos, &atan, &actan, &log, &log10, &sqrt};
+	const Function funcs[11] = {&sine, &cosine, &tg, &ctg, &asine, &acosine, &atg, &actg, &ln, &logTen, &squareRoot};
 	return HashMap<string, Function>(names, funcs, 11);
 }

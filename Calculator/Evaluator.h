@@ -7,7 +7,7 @@ using namespace std;
 
 class Evaluator
 {
-	typedef double (*Function)(double);
+	typedef const double (*Function)(const double, const bool);
 public:
 	class EvaluatorException
 	{
@@ -38,29 +38,73 @@ public:
 	const string& getExpression() const;
 	void setExpression(const string&);
 
-	static bool& rad();
+	bool& rad();
 
     const double parse() const;
 private: 
 	static EvaluatorException _error;
 	static unsigned int _freeId;
+
 	static const HashMap<string, Function> _functions;
-	static HashMap<string, Function> getMap();
-	static double ctan(double x)
+	static const HashMap<string, Function> getMap();
+
+#pragma region Functions
+	static const double sine(const double x, const bool rad)
 	{
-		return 1./tan(x);
+		return sin(!rad?toRadians(x):x);
 	}
-	static double actan(double x)
+	static const double cosine(const double x, const bool rad)
 	{
-		return atan(1./x);
+		return cos(!rad?toRadians(x):x);
 	}
+	static const double tg(const double x, const bool rad)
+	{
+		return tan(!rad?toRadians(x):x);
+	}
+	static const double ctg(const double x, const bool rad)
+	{
+		return 1./tan(!rad?toRadians(x):x);
+	}
+	static const double asine(const double x, const bool rad)
+	{
+		const double res(asin(x));
+		return (!rad?toDegrees(res):res);
+	}
+	static const double acosine(const double x, const bool rad)
+	{
+		const double res(acos(x));
+		return (!rad?toDegrees(res):res);
+	}
+	static const double atg(const double x, const bool rad)
+	{
+		const double res(atan(x));
+		return (!rad?toDegrees(res):res);
+	}
+	static const double actg(const double x, const bool rad)
+	{
+		const double res(atan(1./x));
+		return (!rad?toDegrees(res):res);
+	}
+	static const double ln(const double x, const bool)
+	{
+		return log(x);
+	}
+	static const double logTen(const double x, const bool)
+	{
+		return log10(x);
+	}
+	static const double squareRoot(const double x, const bool)
+	{
+		return sqrt(x);
+	}
+#pragma endregion
 
 	const unsigned int _id;
 	static const double _eps;
 	mutable int _pos; 
 	mutable char _ch;
     string _expression;
-    static bool _rad;
+    mutable bool _rad;
 
 	//Transformation to radians/degrees
 	static const double toRadians(const double);
