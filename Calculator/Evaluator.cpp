@@ -10,9 +10,12 @@
 #endif
 
 unsigned int Evaluator::_freeId(0);
-const double Evaluator::_eps(1E-9);
 unsigned int Evaluator::EvaluatorException::_freeId(0);
+template<class Key, class Value> unsigned int HashMap<Key, Value>::_freeID = 0;
+bool Evaluator::_rad(true);
+const double Evaluator::_eps(1E-9);
 Evaluator::EvaluatorException Evaluator::_error("");
+const HashMap<string, Evaluator::Function> Evaluator::_functions(getMap());
 
 #pragma region EvaluatorException
 Evaluator::EvaluatorException::EvaluatorException(const string& message)
@@ -68,14 +71,14 @@ const unsigned int& Evaluator::EvaluatorException::amount()
 #pragma endregion
 
 Evaluator::Evaluator(const string& exp, const bool& rad)
-	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _rad(rad)
+	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp)
 {
 #ifndef NDEBUG
 	cout << "Evaluator ID-" << _id << " created" << endl;
 #endif
 }
 Evaluator::Evaluator(const Evaluator& ev)
-	: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _rad(ev._rad)
+	: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression)
 {
 #ifndef NDEBUG
 	cout << "Evaluator ID-" << _id << " copied" << endl;
@@ -272,7 +275,15 @@ const double Evaluator::parseFunction(const int startPos) const
 		nextChar();
     string func(_expression.substr(startPos, _pos-startPos));
     res = parseFactor();
-	if(!func.compare("sin"))
+	try
+	{
+		res = _functions[func](res);
+	}
+	catch(...)
+	{
+
+	}
+	/*if(!func.compare("sin"))
 	{
 		if (!_rad) 
 			res = toRadians(res);
@@ -320,17 +331,11 @@ const double Evaluator::parseFunction(const int startPos) const
 		if(!_rad) 
 			res = toDegrees(res);
 	}
-	else if(!func.compare("ln"))
-		res = log(res);
-	else if(!func.compare("log"))
-		res = log10(res);
-	else if(!func.compare("sqrt"))
-		res = sqrt(res);
 	else
 	{
 		_error.error()="Unexpected function: " + func;
 		throw &_error;
-	}
+	}*/
 	return res;
 }
 const double Evaluator::parseOperator(const double calculated) const
@@ -391,7 +396,14 @@ void Evaluator::setExpression(const string& exp)
 	_pos=-1;
 }
 
-bool& Evaluator::rad() const
+bool& Evaluator::rad()
 {
 	return _rad;
+}
+
+HashMap<string, Evaluator::Function> Evaluator::getMap()
+{
+	const string names[11] = {"sin", "cos", "tg", "ctg", "asin", "acos", "atg", "actg", "ln", "log", "sqrt"};
+	const Function funcs[11] = {&sin, &cos, &tan, &ctan, &asin, &acos, &atan, &actan, &log, &log10, &sqrt};
+	return HashMap<string, Function>(names, funcs, 11);
 }

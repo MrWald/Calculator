@@ -2,11 +2,12 @@
 
 #ifndef _EVALUATOR_H_
 #define _EVALUATOR_H_
-
+#include "HashMap.h"
 using namespace std;
 
 class Evaluator
 {
+	typedef double (*Function)(double);
 public:
 	class EvaluatorException
 	{
@@ -21,6 +22,7 @@ public:
 		static const unsigned int& amount();
 	private:
 		static unsigned int _freeId;
+
 		const unsigned int _id;
 		string _message;
 	};
@@ -36,18 +38,29 @@ public:
 	const string& getExpression() const;
 	void setExpression(const string&);
 
-	bool& rad() const;
+	static bool& rad();
 
     const double parse() const;
 private: 
 	static EvaluatorException _error;
 	static unsigned int _freeId;
+	static const HashMap<string, Function> _functions;
+	static HashMap<string, Function> getMap();
+	static double ctan(double x)
+	{
+		return 1./tan(x);
+	}
+	static double actan(double x)
+	{
+		return atan(1./x);
+	}
+
 	const unsigned int _id;
 	static const double _eps;
 	mutable int _pos; 
 	mutable char _ch;
     string _expression;
-    mutable bool _rad;
+    static bool _rad;
 
 	//Transformation to radians/degrees
 	static const double toRadians(const double);
