@@ -82,7 +82,7 @@ const Double operator+(const Double& d)
 
 const Double operator-(const Double& d)
 {
-	return Double(-d);
+	return Double(-d.operator double());
 }
 
 #endif
