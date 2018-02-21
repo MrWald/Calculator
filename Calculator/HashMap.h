@@ -4,14 +4,21 @@
 #define _HASHMAP_H_
 
 #include <vector>
+
 using namespace std;
+
 template <class Key, class Value> 
 class HashMap
 {
 public:
+	class BadKey;
 	HashMap()
 		: _id(++_freeID), _values(100), _keys(100)
-	{}
+	{
+#ifndef NDEBUG
+		cout << "Hash Map ID - " << _id << " created" << endl;
+#endif
+	}
 	HashMap(const vector<Key>& keys, const vector<Value>& values)
 		: _id(++_freeID), _values(100), _keys(100)
 	{
@@ -22,6 +29,9 @@ public:
 			_values[hashCode].push_back(values[i]);
 			_keys[hashCode].pushBack(keys[i]);
 		}
+#ifndef NDEBUG
+		cout << "Hash Map ID - " << _id << " created" << endl;
+#endif
 	}
 	HashMap(const Key keys[], const Value values[], unsigned int size)
 		: _id(++_freeID), _values(100), _keys(100)
@@ -33,13 +43,32 @@ public:
 			_values[hashCode].push_back(values[i]);
 			_keys[hashCode].push_back(keys[i]);
 		}
+#ifndef NDEBUG
+		cout << "Hash Map ID - " << _id << " created" << endl;
+#endif
 	}
 	HashMap(const HashMap& map)
 		: _id(++_freeID), _values(map._values), _keys(map._keys)
 	{
-
+#ifndef NDEBUG
+		cout << "Hash Map ID - " << _id << " copied" << endl;
+#endif
 	}
-	~HashMap(){}
+	HashMap& operator=(const HashMap& map)
+	{
+		if(this!=&map)
+		{
+			_values = map._values;
+			_keys = map._keys;
+		}
+		return *this;
+	}
+	~HashMap()
+	{
+#ifndef NDEBUG
+		cout << "Hash Map ID - " << _id << " destroyed" << endl;
+#endif
+	}
 	const Value& operator[](const Key& key) const
 		{
 			const size_t hashCode(hash<Key>()(key)%_values.size());
@@ -84,11 +113,12 @@ public:
 		return res;
 	}
 private:
-	HashMap& operator=(const HashMap&){}
 	vector<vector<Value>> _values;
 	vector<vector<Key>> _keys;
 	const unsigned int _id;
 	static unsigned int _freeID;
 };
+
+template<class Key, class Value> unsigned int HashMap<Key, Value>::_freeID = 0;
 
 #endif

@@ -10,76 +10,19 @@
 #endif
 
 unsigned int Evaluator::_freeId(0);
-unsigned int Evaluator::EvaluatorException::_freeId(0);
-template<class Key, class Value> unsigned int HashMap<Key, Value>::_freeID = 0;
 const double Evaluator::_eps(1E-9);
-Evaluator::EvaluatorException Evaluator::_error("");
-const HashMap<string, Evaluator::Function> Evaluator::_functions(getMap());
 const Evaluator::UnaryOperator Evaluator::_unaryOperators[]={&fac, &percent};
 const Evaluator::BinaryOperator Evaluator::_binaryOperators[]={&power, &modulo};
 
-#pragma region EvaluatorException
-Evaluator::EvaluatorException::EvaluatorException(const string& message)
-	: _id(++_freeId), _message(message)
-{
-#ifndef NDEBUG
-	cout << "EvaluatorException ID-" << _id << " created" << endl;
-#endif
-}
-
-Evaluator::EvaluatorException::EvaluatorException(const EvaluatorException& exception)
-	: _id(++_freeId), _message(exception._message)
-{
-#ifndef NDEBUG
-	cout << "EvaluatorException ID-" << _id << " copied" << endl;
-#endif
-}
-
-Evaluator::EvaluatorException::~EvaluatorException()
-{
-#ifndef NDEBUG
-	cout << "EvaluatorException ID-" << _id << " destroyed" << endl;
-#endif
-}
-
-Evaluator::EvaluatorException& Evaluator::EvaluatorException::operator=(const EvaluatorException& exception)
-{
-	if(this != &exception)
-	{
-		_message = exception._message;
-	}
-	return *this;
-}
-
-const string& Evaluator::EvaluatorException::error() const
-{
-	return _message;
-}
-
-string& Evaluator::EvaluatorException::error()
-{
-	return _message;
-}
-
-const unsigned int& Evaluator::EvaluatorException::getId() const
-{
-	return _id;
-}
-const unsigned int& Evaluator::EvaluatorException::amount()
-{
-	return _freeId;
-}
-#pragma endregion
-
-Evaluator::Evaluator(const string& exp, const bool& rad)
-	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _rad(rad)
+Evaluator::Evaluator(const HashMap<string, Function>& functions, const string& exp, const bool& rad)
+	: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _functions(functions), _rad(rad)
 {
 #ifndef NDEBUG
 	cout << "Evaluator ID-" << _id << " created" << endl;
 #endif
 }
 Evaluator::Evaluator(const Evaluator& ev)
-	: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _rad(ev._rad)
+	: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _functions(ev._functions), _rad(ev._rad)
 {
 #ifndef NDEBUG
 	cout << "Evaluator ID-" << _id << " copied" << endl;
@@ -98,13 +41,14 @@ Evaluator& Evaluator::operator=(const Evaluator& ev)
 	{
 		_expression = ev._expression;
 		_rad = ev._rad;
+		_functions = ev._functions;
 		_pos = -1;
 		_ch = 0;
 	}
 	return *this;
 }
 
-Evaluator::operator double()
+Evaluator::operator Element()
 {
 	return parse();
 }
@@ -140,28 +84,22 @@ const bool Evaluator::eat(const char& c) const
 	return false;
 }
 
-const double Evaluator::parse() const
+const Evaluator::Element Evaluator::parse() const
 {
 	if(!_expression.compare(""))
-	{
-		_error.error()="Expression undefined";
-		throw &_error;
-	}
+		throw EvaluatorException("Expression undefined");
 	nextChar();
 	//Expression evaluation
 	double x(parseExpression());
 	if (_pos < static_cast<int>(_expression.length()) && _ch!='P' && _ch!='I' && _ch!='e') 
-	{
-		_error.error() = string("Unexpected character: ")+=_ch;
-		throw &_error;
-	}
+		throw EvaluatorException(string("Unexpected character: ")+=_ch);
 	_pos = -1;
 	_ch = 0;
 	if(abs(x)<_eps)
 		x=0;
 	return x;
 }
-const double Evaluator::parseExpression() const
+const Evaluator::Element Evaluator::parseExpression() const
 {
     //Calculating operations with greater priority first
     double x(parseTerm());
@@ -179,7 +117,7 @@ const double Evaluator::parseExpression() const
         }
     }
 }
-const double Evaluator::parseTerm() const
+const Evaluator::Element Evaluator::parseTerm() const
 {
     //Calculate operations with greater priority first
     double x(parseFactor());
@@ -198,7 +136,7 @@ const double Evaluator::parseTerm() const
         }
     }
 }
-const double Evaluator::parseFactor() const
+const Evaluator::Element Evaluator::parseFactor() const
 {
     //Firstly process sign
 	//Return later evaluated result with appropriate sign
@@ -235,17 +173,14 @@ const double Evaluator::parseFactor() const
                 x = parseFunction(startPos);
 			}
 			else 
-			{
-				_error.error() = string("Unexpected character: ")+=_ch;
-				throw &_error;
-			}
+				throw EvaluatorException(string("Unexpected character: ")+=_ch);
 		} 
 	}
     //After processing numbers/functions process operators
     x = parseOperator(x);
     return x;
 }
-const double Evaluator::parseNumber(const int startPos) const
+const Evaluator::Element Evaluator::parseNumber(const int startPos) const
 {
 	double res(0);
 	if ((_ch == 'P' && _expression[_pos+1] == 'I') || (_ch == 'p' && _expression[_pos+1] == 'i')) 
@@ -269,7 +204,7 @@ const double Evaluator::parseNumber(const int startPos) const
 	}
 	return res;
 }
-const double Evaluator::parseFunction(const int startPos) const
+const Evaluator::Element Evaluator::parseFunction(const int startPos) const
 {
 	double res(0);
 	while (_ch >= 'a' && _ch <= 'z') 
@@ -282,12 +217,11 @@ const double Evaluator::parseFunction(const int startPos) const
 	}
 	catch(...)
 	{
-		_error.error()="Unexpected function: " + func;
-		throw &_error;
+		throw EvaluatorException("Unexpected function: " + func);
 	}
 	return res;
 }
-const double Evaluator::parseOperator(const double calculated) const
+const Evaluator::Element Evaluator::parseOperator(const double calculated) const
 {
 	double res(calculated);
 	if (eat('^')) 
@@ -317,11 +251,4 @@ void Evaluator::setExpression(const string& exp)
 bool& Evaluator::rad()
 {
 	return _rad;
-}
-
-const HashMap<string, Evaluator::Function> Evaluator::getMap()
-{
-	const string names[11] = {"sin", "cos", "tg", "ctg", "asin", "acos", "atg", "actg", "ln", "log", "sqrt"};
-	const Function funcs[11] = {&sine, &cosine, &tg, &ctg, &asine, &acosine, &atg, &actg, &ln, &logTen, &squareRoot};
-	return HashMap<string, Function>(names, funcs, 11);
 }

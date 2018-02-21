@@ -12,6 +12,29 @@ void listCommands(const string commands[], const unsigned int& size)
 	return;
 }
 
+#pragma region Declarations
+
+const double sine(const double, const bool);
+const double cosine(const double, const bool);
+const double tg(const double, const bool);
+const double ctg(const double, const bool);
+const double asine(const double, const bool);
+const double acosine(const double, const bool);
+const double atg(const double, const bool);
+const double actg(const double, const bool);
+const double ln(const double, const bool);
+const double logTen(const double, const bool);
+const double squareRoot(const double, const bool);
+
+#pragma endregion
+
+const HashMap<string, Evaluator::Function> getMap()
+{
+	const string names[11] = {"sin", "cos", "tg", "ctg", "asin", "acos", "atg", "actg", "ln", "log", "sqrt"};
+	const Evaluator::Function funcs[11] = {&sine, &cosine, &tg, &ctg, &asine, &acosine, &atg, &actg, &ln, &logTen, &squareRoot};
+	return HashMap<string, Evaluator::Function>(names, funcs, 11);
+}
+
 int main()
 {
 	const unsigned int commandsSize(24);
@@ -24,7 +47,7 @@ int main()
 		"ln - natural logarithm", "log - logarithm to base 10", "sqrt - square root"
 	};
 	string expression;
-	Evaluator evaluator;
+	Evaluator evaluator(getMap());
 	while(true)
 	{
 		cout << "\nEnter command or expression" << endl;
@@ -47,9 +70,9 @@ int main()
 				evaluator.setExpression(expression);
 				cout << evaluator << endl;
 			}
-			catch(const Evaluator::EvaluatorException * const e)
+			catch(const Evaluator::EvaluatorException& e)
 			{
-				cerr << e->error() << endl;
+				cerr << e.error() << endl;
 				evaluator.setExpression("");
 				cout << "Enter 'help' if you forgot appropriate expressions" << endl;
 			}
@@ -58,3 +81,54 @@ int main()
 	}
 	return 0;
 }
+
+#pragma region Functions
+	static const double sine(const double x, const bool rad)
+	{
+		return sin(!rad?Evaluator::toRadians(x):x);
+	}
+	static const double cosine(const double x, const bool rad)
+	{
+		return cos(!rad?Evaluator::toRadians(x):x);
+	}
+	static const double tg(const double x, const bool rad)
+	{
+		return tan(!rad?Evaluator::toRadians(x):x);
+	}
+	static const double ctg(const double x, const bool rad)
+	{
+		return 1./tan(!rad?Evaluator::toRadians(x):x);
+	}
+	static const double asine(const double x, const bool rad)
+	{
+		const double res(asin(x));
+		return (!rad?Evaluator::toDegrees(res):res);
+	}
+	static const double acosine(const double x, const bool rad)
+	{
+		const double res(acos(x));
+		return (!rad?Evaluator::toDegrees(res):res);
+	}
+	static const double atg(const double x, const bool rad)
+	{
+		const double res(atan(x));
+		return (!rad?Evaluator::toDegrees(res):res);
+	}
+	static const double actg(const double x, const bool rad)
+	{
+		const double res(atan(1./x));
+		return (!rad?Evaluator::toDegrees(res):res);
+	}
+	static const double ln(const double x, const bool)
+	{
+		return log(x);
+	}
+	static const double logTen(const double x, const bool)
+	{
+		return log10(x);
+	}
+	static const double squareRoot(const double x, const bool)
+	{
+		return sqrt(x);
+	}
+#pragma endregion
