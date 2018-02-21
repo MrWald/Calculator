@@ -8,6 +8,8 @@ using namespace std;
 class Evaluator
 {
 	typedef const double (*Function)(const double, const bool);
+	typedef const double (*UnaryOperator)(const double);
+	typedef const double (*BinaryOperator)(const double, const double);
 public:
 	class EvaluatorException
 	{
@@ -47,6 +49,8 @@ private:
 
 	static const HashMap<string, Function> _functions;
 	static const HashMap<string, Function> getMap();
+	static const UnaryOperator _unaryOperators[];
+	static const BinaryOperator _binaryOperators[];
 
 #pragma region Functions
 	static const double sine(const double x, const bool rad)
@@ -96,6 +100,56 @@ private:
 	static const double squareRoot(const double x, const bool)
 	{
 		return sqrt(x);
+	}
+#pragma endregion
+
+#pragma region Operators
+	static const double power(const double a, const double n)
+	{
+		return pow(a, n);
+	}
+	static const double fac(const double x)
+	{
+		double res(x);
+		if (x<0)
+		{
+			_error.error() = "Factorial accepts only positive integer numbers";
+			throw &_error;
+		}
+		else if(abs( x - static_cast<int>(res) ) > _eps)
+		{
+			if(abs( res - ( static_cast<int>(res)+1 ) ) > _eps)
+			{
+				_error.error() = "Factorial accepts only positive integer numbers";
+				throw &_error;
+			}
+			else 
+				res = static_cast<double>(factorial( static_cast<unsigned int>(res)+1 ));
+		}
+        else 
+			res = static_cast<double>(factorial(static_cast<unsigned int>(res)));
+		return res;
+	}
+	static const double percent(const double x)
+	{
+		return x/100;
+	}
+	static const double modulo(const double x, const double y)
+	{
+		double res(x);
+		if ( abs( x - static_cast<int>(x) ) > _eps || abs( y - static_cast<int>(y) ) > _eps) 
+		{
+			if( abs( x - ( static_cast<int>(x)+1 ) ) > _eps || abs( y - static_cast<int>(y)+1 ) > _eps)
+			{
+				_error.error() = "Modulo accepts only integer numbers";
+				throw &_error;
+			}
+			else 
+				res = ( static_cast<int>(res)+1 ) % static_cast<int>(y);
+		}
+		else
+			res = static_cast<int>(res) % static_cast<int>(y);
+		return res;
 	}
 #pragma endregion
 

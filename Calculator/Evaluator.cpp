@@ -15,6 +15,8 @@ template<class Key, class Value> unsigned int HashMap<Key, Value>::_freeID = 0;
 const double Evaluator::_eps(1E-9);
 Evaluator::EvaluatorException Evaluator::_error("");
 const HashMap<string, Evaluator::Function> Evaluator::_functions(getMap());
+const Evaluator::UnaryOperator Evaluator::_unaryOperators[]={&fac, &percent};
+const Evaluator::BinaryOperator Evaluator::_binaryOperators[]={&power, &modulo};
 
 #pragma region EvaluatorException
 Evaluator::EvaluatorException::EvaluatorException(const string& message)
@@ -289,46 +291,15 @@ const double Evaluator::parseOperator(const double calculated) const
 {
 	double res(calculated);
 	if (eat('^')) 
-		res = pow(res, parseExpression()); //Raising to power
+		res = _binaryOperators[0](res, parseExpression()); //Raising to power
     else if (eat('!')) //Factorial
-    {
-        if (calculated<0)
-		{
-			_error.error() = "Factorial accepts only positive integer numbers";
-			throw &_error;
-		}
-		else if(abs( calculated - static_cast<int>(res) ) > _eps)
-		{
-			if(abs( res - ( static_cast<int>(res)+1 ) ) > _eps)
-			{
-				_error.error() = "Factorial accepts only positive integer numbers";
-				throw &_error;
-			}
-			else 
-				res = static_cast<double>(factorial( static_cast<unsigned int>(res)+1 ));
-		}
-        else 
-			res = static_cast<double>(factorial(static_cast<unsigned int>(res)));
-    } 
+		res = _unaryOperators[0](res);
 	//Percents
 	else if (eat('%'))
-		res /= 100;
+		res = _unaryOperators[1](res);
 	//Modulo
     else if (eat('&')) 
-	{
-		if ( abs( calculated - static_cast<int>(res) ) > _eps ) 
-		{
-			if( abs( calculated - ( static_cast<int>(res)+1 ) ) > _eps )
-			{
-				_error.error() = "Modulo accepts only integer numbers";
-				throw &_error;
-			}
-			else 
-				res = ( static_cast<int>(res)+1 ) % static_cast<int>(parseExpression());
-		}
-		else
-			res = static_cast<int>(res) % static_cast<int>(parseExpression());
-	}
+		res = _binaryOperators[1](res, parseExpression());
 	return res;
 }
 
