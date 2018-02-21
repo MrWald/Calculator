@@ -9,7 +9,16 @@
 class Double
 {
 public:
-	Double(const double value) : _value(value){}
+	class BadDouble
+	{
+	public:
+		BadDouble(const string& message="") : _message(message) {}
+	private:
+		string _message;
+	};
+	explicit Double(const double value=0) : _value(value){}
+
+	Double(const Double& d) : _value(d._value) {}
 
 	operator double&() {return _value;}
 	operator double() const {return _value;}
@@ -17,16 +26,16 @@ public:
 //	For parsing with Evaluator
 	static const Double read(const Evaluator<Double>& evaluator, const int startPos)
 	{
-		Double res(0);
+		Double res;
 		if ((evaluator._ch == 'P' && evaluator._expression[evaluator._pos+1] == 'I') || (evaluator._ch == 'p' && evaluator._expression[evaluator._pos+1] == 'i')) 
 		{
-			res = M_PI;
+			res = Double(M_PI);
 			evaluator.nextChar();
 			evaluator.nextChar();
 		}
 		else if (evaluator._ch == 'e' || evaluator._ch == 'E') 
 		{
-			res = M_E;
+			res = Double(M_E);
 			evaluator.nextChar();
 		}
 		else
@@ -35,7 +44,7 @@ public:
 			while ((evaluator._ch >= '0' && evaluator._ch <= '9') || evaluator._ch == '.') 
 				evaluator.nextChar();
 			//Parsing read number
-			res = atof((evaluator._expression.substr(startPos, evaluator._pos-startPos)).c_str());
+			res = Double(atof((evaluator._expression.substr(startPos, evaluator._pos-startPos)).c_str()));
 		}
 		return res;
 	}
@@ -52,5 +61,28 @@ public:
 private:
 	double _value;
 };
+
+Double& operator/=(Double& d1, const Double& d2)
+{
+	if(!d2)
+		throw Double::BadDouble("Division by zero");
+	d1.operator double&()/=d2;
+	return d1;
+}
+
+const Double operator/(const Double& d1, const Double& d2)
+{
+	return operator/=( Double(d1), d2);
+}
+
+const Double operator+(const Double& d)
+{
+	return d;
+}
+
+const Double operator-(const Double& d)
+{
+	return Double(-d);
+}
 
 #endif

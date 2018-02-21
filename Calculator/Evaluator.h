@@ -15,9 +15,9 @@ class Evaluator
 {
 	friend const Element Element::read(const Evaluator& e, const int st);
 public:
-	typedef const Element (*Function)(const Element, const bool);
-	typedef const Element (*UnaryOperator)(const Element);
-	typedef const Element (*BinaryOperator)(const Element, const Element);
+	typedef const Element (*Function)(const Element&, const bool);
+	typedef const Element (*UnaryOperator)(const Element&);
+	typedef const Element (*BinaryOperator)(const Element&, const Element&);
 	//Transformation to radians/degrees
 	static const double toRadians(const double deg)
 	{
@@ -118,7 +118,15 @@ public:
 			throw EvaluatorException("Expression undefined");
 		nextChar();
 		//Expression evaluation
-		Element x(parseExpression());
+		Element x;
+		try
+		{
+			x = parseExpression();
+		}
+		catch(...)
+		{
+			throw EvaluatorException("Something bad happend. Check your input");
+		}
 		if (_pos < static_cast<int>(_expression.length()) && !Element::isElement(_expression, _pos)) 
 			throw EvaluatorException(string("Unexpected character: ")+=_ch);
 		_pos = -1;
@@ -205,7 +213,7 @@ private:
 		//Firstly process sign
 		//Return later evaluated result with appropriate sign
 		if (eat('+')) 
-			return parseFactor();
+			return +parseFactor();
 		if (eat('-')) 
 			return -parseFactor();
 		//The result
