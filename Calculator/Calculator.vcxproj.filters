@@ -21,12 +21,12 @@
     <ClInclude Include="HashMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Double.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Evaluator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
