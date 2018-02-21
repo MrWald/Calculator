@@ -1,5 +1,5 @@
+//Created by Volodymyr Fomin on 20/02/2018
 
-#pragma once
 #ifndef _HASHMAP_H_
 #define _HASHMAP_H_
 
@@ -26,9 +26,9 @@ public:
 	HashMap(const unsigned int alloc=100)
 		: _id(++_freeID), _values(alloc), _keys(alloc)
 	{
-#ifndef NDEBUG
+	#ifndef NDEBUG
 		cout << "Hash Map ID - " << _id << " created" << endl;
-#endif
+	#endif
 	}
 	HashMap(const vector<Key>& keys, const vector<Value>& values, const unsigned int alloc=100)
 		: _id(++_freeID), _values(alloc), _keys(alloc)
@@ -42,9 +42,9 @@ public:
 			_values[hashCode].push_back(values[i]);
 			_keys[hashCode].pushBack(keys[i]);
 		}
-#ifndef NDEBUG
+	#ifndef NDEBUG
 		cout << "Hash Map ID - " << _id << " created" << endl;
-#endif
+	#endif
 	}
 	HashMap(const Key keys[], const Value values[], const unsigned int size, const unsigned int alloc=100)
 		: _id(++_freeID), _values(alloc), _keys(alloc)
@@ -56,16 +56,16 @@ public:
 			_values[hashCode].push_back(values[i]);
 			_keys[hashCode].push_back(keys[i]);
 		}
-#ifndef NDEBUG
+	#ifndef NDEBUG
 		cout << "Hash Map ID - " << _id << " created" << endl;
-#endif
+	#endif
 	}
 	HashMap(const HashMap<Key, Value>& map)
 		: _id(++_freeID), _values(map._values), _keys(map._keys)
 	{
-#ifndef NDEBUG
+	#ifndef NDEBUG
 		cout << "Hash Map ID - " << _id << " copied" << endl;
-#endif
+	#endif
 	}
 	HashMap& operator=(const HashMap<Key, Value>& map)
 	{
@@ -78,9 +78,9 @@ public:
 	}
 	~HashMap()
 	{
-#ifndef NDEBUG
+	#ifndef NDEBUG
 		cout << "Hash Map ID - " << _id << " destroyed" << endl;
-#endif
+	#endif
 	}
 
 	const Value& operator[](const Key& key) const
@@ -101,22 +101,22 @@ public:
 			_keys[hashCode].push_back(key);
 		}
 	const Value& remove(const Key& key)
+	{
+		const unsigned int hashCode(getHashCode(key));
+		const vector<Key>* const region = &_keys[hashCode];
+		Value res;
+		for(unsigned int i(0);i<region->size();++i)
 		{
-			const unsigned int hashCode(getHashCode(key));
-			const vector<Key>* const region = &_keys[hashCode];
-			Value res;
-			for(unsigned int i(0);i<region->size();++i)
+			if((*region)[i]==key)
 			{
-				if((*region)[i]==key)
-				{
-					res = _values[hashCode][i];
-					_values[hashCode].erase(i);
-					_keys[hashCode].erase(i);
-					return res;
-				}
+				res = _values[hashCode][i];
+				_values[hashCode].erase(i);
+				_keys[hashCode].erase(i);
+				return res;
 			}
-			throw BadHashMap("No such element " + key);
 		}
+		throw BadHashMap("No such element " + key);
+	}
 	const bool isEmpty() const
 	{
 		bool res(true);

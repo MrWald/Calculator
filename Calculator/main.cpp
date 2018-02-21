@@ -1,7 +1,7 @@
 //Created by Volodymyr Fomin on 07/02/2018
+
 #include <iostream>
 #include <sstream>
-#include "Evaluator.h"
 #include "Double.h"
 
 using namespace std;

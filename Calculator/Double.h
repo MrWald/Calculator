@@ -1,11 +1,11 @@
+//Created by Volodymyr Fomin on 21/02/2018
+
 #ifndef _DOUBLE_H_
 #define _DOUBLE_H_
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 #include "Evaluator.h"
 
+// Class Double, contains plane double and implements methods for evaluating expressions with this type by Evaluator class
 class Double
 {
 public:
@@ -16,35 +16,39 @@ public:
 	private:
 		string _message;
 	};
-	explicit Double(const double value=0) : _value(value){}
 
-	Double(const Double& d) : _value(d._value) {}
+	explicit Double(const double value=0) : _value(value){}
 
 	operator double&() {return _value;}
 	operator double() const {return _value;}
 
 //	For parsing with Evaluator
-	static const Double read(const Evaluator<Double>& evaluator, const int startPos)
+	static const Double read(const Evaluator<Double>& ev, const int startPos, void (Evaluator<Double>::*move)()const)
 	{
 		Double res;
-		if ((evaluator._ch == 'P' && evaluator._expression[evaluator._pos+1] == 'I') || (evaluator._ch == 'p' && evaluator._expression[evaluator._pos+1] == 'i')) 
+		if ((ev.getExpression()[startPos] == 'P' && ev.getExpression()[startPos+1] == 'I') 
+			|| (ev.getExpression()[startPos] == 'p' && ev.getExpression()[startPos+1] == 'i')) 
 		{
 			res = Double(M_PI);
-			evaluator.nextChar();
-			evaluator.nextChar();
+			(ev.*move)();
+			(ev.*move)();
 		}
-		else if (evaluator._ch == 'e' || evaluator._ch == 'E') 
+		else if (ev.getExpression()[startPos] == 'e' || ev.getExpression()[startPos] == 'E') 
 		{
 			res = Double(M_E);
-			evaluator.nextChar();
+			(ev.*move)();
 		}
 		else
 		{
-			evaluator._ch = evaluator._expression[evaluator._pos];
-			while ((evaluator._ch >= '0' && evaluator._ch <= '9') || evaluator._ch == '.') 
-				evaluator.nextChar();
+			//evaluator._ch = evaluator._expression[evaluator._pos];
+			int endPos(startPos);
+			while ((ev.getExpression()[endPos] >= '0' && ev.getExpression()[endPos] <= '9') || ev.getExpression()[endPos] == '.') 
+			{
+				++endPos;
+				(ev.*move)();
+			}
 			//Parsing read number
-			res = Double(atof((evaluator._expression.substr(startPos, evaluator._pos-startPos)).c_str()));
+			res = Double(atof((ev.getExpression().substr(startPos, endPos-startPos)).c_str()));
 		}
 		return res;
 	}
@@ -62,6 +66,7 @@ private:
 	double _value;
 };
 
+//Overloading operators of division for throwing exceptions when dividing by zero and unary +, - for correct casting
 Double& operator/=(Double& d1, const Double& d2)
 {
 	if(!d2)
@@ -85,6 +90,7 @@ const Double operator-(const Double& d)
 	return Double(-d.operator double());
 }
 
+//Operator for accurate console output
 ostream& operator<<(ostream& out, const Double& d)
 {
 	return out << (abs(d.operator double())<1E-9?0:d.operator double());

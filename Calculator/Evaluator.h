@@ -2,22 +2,28 @@
 
 #ifndef _EVALUATOR_H_
 #define _EVALUATOR_H_
+
 #define _USE_MATH_DEFINES
 #include <math.h>
+
 #include <string>
 #include "HashMap.h"
+
 #ifndef NDEBUG
 #include <iostream>
 #endif
+
 using namespace std;
+
 template<class Element>
 class Evaluator
 {
-	friend const Element Element::read(const Evaluator& e, const int st);
 public:
+	// Types of Functions, Unary and Binary operators. For readability
 	typedef const Element (*Function)(const Element&, const bool);
 	typedef const Element (*UnaryOperator)(const Element&);
 	typedef const Element (*BinaryOperator)(const Element&, const Element&);
+
 	//Transformation to radians/degrees
 	static const double toRadians(const double deg)
 	{
@@ -28,6 +34,7 @@ public:
 		return (rad*180.f)/M_PI;
 	}
 
+	// Class for giving exceptions
 	class EvaluatorException
 	{
 	public:
@@ -43,7 +50,7 @@ public:
 		string _message;
 	};
 
-	explicit Evaluator(const HashMap<char, UnaryOperator>& unaryOperators, const HashMap<char, BinaryOperator>& binaryOperators,
+	Evaluator(const HashMap<char, UnaryOperator>& unaryOperators, const HashMap<char, BinaryOperator>& binaryOperators,
 		const HashMap<string, Function>& functions, const string& exp="", const bool& rad=true)
 		: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _unaryOperators(unaryOperators), _binaryOperators(binaryOperators), _functions(functions), _rad(rad)
 	{
@@ -51,18 +58,20 @@ public:
 		cout << "Evaluator ID-" << _id << " created" << endl;
 	#endif
 	}
+
 	Evaluator(const Evaluator<Element>& ev)
 		: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _unaryOperators(ev._unaryOperators), _binaryOperators(ev._binaryOperators), _functions(ev._functions), _rad(ev._rad)
 	{
-#ifndef NDEBUG
+	#ifndef NDEBUG
 		cout << "Evaluator ID-" << _id << " copied" << endl;
-#endif
+	#endif
 	}
+
 	~Evaluator()
 	{
-#ifndef NDEBUG
+	#ifndef NDEBUG
 		cout << "Evaluator ID-" << _id << " destroyed" << endl;
-#endif
+	#endif
 	}
 
 	Evaluator& operator=(const Evaluator<Element>& ev)
@@ -82,7 +91,6 @@ public:
 
 	operator Element()
 	{
-
 		return parse();
 	}
     
@@ -231,8 +239,8 @@ private:
 		{
 			//If currently read char is a number move through expression until come across a non-digit, not dot or not letters responsible for constants
 			//If constant is read -> replace with number and process it again
-			if(Element::isElement(_expression, _pos))
-				x = Element::read(*this, startPos);
+			if(Element::isElement(_expression, startPos))
+				x = Element::read(*this, startPos, &Evaluator<Element>::nextChar);
 			else 
 			{
 				//If read letter not responsible for constant -> process as a function
@@ -292,16 +300,6 @@ private:
 				res = calculated;
 			}
 		}
-		/*if (eat('^')) 
-			res = _binaryOperators[0](res, parseExpression()); //Raising to power
-		else if (eat('!')) //Factorial
-			res = _unaryOperators[0](res);
-		//Percents
-		else if (eat('%'))
-			res = _unaryOperators[1](res);
-		//Modulo
-		else if (eat('&')) 
-			res = _binaryOperators[1](res, parseExpression());*/
 		return res;
 	}
 };
