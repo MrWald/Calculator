@@ -85,4 +85,9 @@ const Double operator-(const Double& d)
 	return Double(-d.operator double());
 }
 
+ostream& operator<<(ostream& out, const Double& d)
+{
+	return out << (abs(d.operator double())<1E-9?0:d.operator double());
+}
+
 #endif
