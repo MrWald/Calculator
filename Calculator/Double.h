@@ -67,6 +67,11 @@ public:
 			|| currentChar == 'e' || currentChar == 'E'; 
 		
 	}
+//	Applying function of specified signature, because Evaluator doesn't know how many arguments are passed to function of our signature
+	static const Double apply(const Evaluator<Double, Function>& ev, const Double (Evaluator<Double, Function>::*parseExpression)()const, const Double& current, const Function& currentF)
+	{
+		return currentF(current);
+	}
 private:
 	double _value;
 };

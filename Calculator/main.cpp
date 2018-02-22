@@ -1,5 +1,11 @@
 //Created by Volodymyr Fomin on 07/02/2018
 
+//Evaluator class accepts specified class, which will be parsed from string with particular signature of functions.
+//For Evaluator to do that, class that can be parsed must implement following methods:
+//1.read - evaluator passes its object, which currently reads an object of this type from string, postion where Evaluator is currently located in and function which moves evaluator on next char in passed string
+//2.isElement - determining whether character, which evaluator object currently reading may be element of object of class to be processed. Accepts string and position which evaluator currently reading
+//3.apply - Applying function of specified signature. Passed object which currently reads object of following class from string, function to start parsing rest of expression, currently read element and current function of specified signature read from string 
+
 #include <iostream>
 #include "Functions.h"
 

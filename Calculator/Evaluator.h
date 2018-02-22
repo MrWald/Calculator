@@ -246,7 +246,7 @@ private:
 		res = parseFactor();
 		try
 		{
-			res = _functions[func](res);
+			res = Element::apply(*this, &Evaluator<Element, Function>::parseExpression, res, _functions[func]);
 		}
 		catch(...)
 		{
