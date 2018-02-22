@@ -45,7 +45,6 @@ public:
 		}
 		else
 		{
-			//evaluator._ch = evaluator._expression[evaluator._pos];
 			int endPos(startPos);
 			while ((ev.getExpression()[endPos] >= '0' && ev.getExpression()[endPos] <= '9') || ev.getExpression()[endPos] == '.') 
 			{

@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include "Functions.h"
+#include "AComplex.h"
 
 void listCommands(const string commands[], const unsigned int& size)
 {
@@ -18,38 +19,55 @@ void listCommands(const string commands[], const unsigned int& size)
 
 int main()
 {
-	const unsigned int commandsSize(24);
+	const unsigned int commandsSize(26);
 	string commands[commandsSize]=
 	{
-		"help - list all available commands, functions and operators", "rad - read angle in radians or degrees", "exit - exit from the programm", 
+		"help - list all available commands, functions and operators", "rad - read angle in radians or degrees", "complex - enable reading complex numbers", "exit - exit from the programm", 
 		"( - opening brace", ") - closing brace, optional", "+ - addition", "- - subtraction", "* - multiplication", "/ - division", 
-		"! - factorial, put in the end of expression", "^ - raise to power", "% - turn to percents", "& - modulo", 
-		"sin - sine", "cos - cosine", "tg - tangent", "ctg - cotangent", "asin - arcsine", "acos - arccosine", "atg - arctangent", "actg - arccotangent", 
-		"ln - natural logarithm", "log - logarithm to base 10", "sqrt - square root"
+		"! - factorial, put in the end of expression(Only real numbers)", "^ - raise to power", "% - turn to percents(Only real numbers)", "& - modulo(Only real numbers)", 
+		"sin - sine(Only real numbers)", "cos - cosine(Only real numbers)", "tg - tangent(Only real numbers)", "ctg - cotangent(Only real numbers)", 
+		"asin - arcsine(Only real numbers)", "acos - arccosine(Only real numbers)", "atg - arctangent(Only real numbers)", "actg - arccotangent(Only real numbers)", 
+		"ln - natural logarithm(Only real numbers)", "log - logarithm to base 10(Only real numbers)", "sqrt - square root(Only real numbers)", "conj - conjugated number to entered(Only complex numbers)"
 	};
 	string expression;
 	Evaluator<Double, Double::Function> evaluator(getUOps(), getBOps(), getFunctions());
+	Evaluator<AComplex, AComplex::Function> evC(
+		HashMap<char, Evaluator<AComplex, AComplex::Function>::UnaryOperator>(0), getBOpsComplex(), getFunctionsComplex());
+	bool readComplex(false);
 	while(true)
 	{
 		cout << "\nEnter command or expression" << endl;
 		getline(cin, expression);
-		if(!expression.compare("exit"))
+		if(expression=="exit")
 			break;
-		else if(!expression.compare("help"))
+		else if(expression=="help")
 		{
 			listCommands(commands, commandsSize);
 		}
-		else if(!expression.compare("rad"))
+		else if(expression=="rad")
 		{
 			Rad = !Rad;
 			cout << "Radians turned " << (Rad?"on":"off") << endl;
+		}
+		else if(expression=="complex")
+		{
+			readComplex = !readComplex;
+			cout << "Reading complex numbers " << (readComplex?"on":"off") << endl;
 		}
 		else
 		{
 			try
 			{
-				evaluator.setExpression(expression);
-				cout << evaluator << endl;
+				if(!readComplex)
+				{
+					evaluator.setExpression(expression);
+					cout << evaluator << endl;
+				}
+				else
+				{
+					evC.setExpression(expression);
+					cout << evC << endl;
+				}
 			}
 			catch(const Evaluator<Double, Double::Function>::EvaluatorException& e)
 			{

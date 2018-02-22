@@ -4,6 +4,7 @@
 #define _FUNCTIONS_H_
 
 #include "Double.h"
+#include "AComplex.h"
 
 bool Rad = true;
 
@@ -135,6 +136,20 @@ const HashMap<string, Double::Function> getFunctions()
 	const string names[11] = {"sin", "cos", "tg", "ctg", "asin", "acos", "atg", "actg", "ln", "log", "sqrt"};
 	const Double::Function funcs[11] = {&sine, &cosine, &tg, &ctg, &asine, &acosine, &atg, &actg, &ln, &logTen, &squareRoot};
 	return HashMap<string, Double::Function>(names, funcs, 11, 20);
+}
+
+const HashMap<char, Evaluator<AComplex, AComplex::Function>::BinaryOperator> getBOpsComplex()
+{
+	const char names[1] = {'^'};
+	const Evaluator<AComplex, AComplex::Function>::BinaryOperator bOps[1] = {&AComplex::power};
+	return HashMap<char, Evaluator<AComplex, AComplex::Function>::BinaryOperator>(names, bOps, 1, 5);
+}
+
+const HashMap<string, AComplex::Function> getFunctionsComplex()
+{
+	const string names[11] = {"conj"};
+	const AComplex::Function funcs[1] = {&AComplex::conj};
+	return HashMap<string, AComplex::Function>(names, funcs, 1, 5);
 }
 #pragma endregion
 

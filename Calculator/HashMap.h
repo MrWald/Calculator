@@ -84,22 +84,24 @@ public:
 	}
 
 	const Value& operator[](const Key& key) const
+	{
+		const size_t hashCode(getHashCode(key));
+		if(!hashCode)
+			throw BadHashMap("Map is empty");
+		const vector<Key>* const region = &_keys[hashCode];
+		for(unsigned int i(0);i<region->size();++i)
 		{
-			const size_t hashCode(getHashCode(key));
-			const vector<Key>* const region = &_keys[hashCode];
-			for(unsigned int i(0);i<region->size();++i)
-			{
-				if((*region)[i]==key)
-					return _values[hashCode][i];
-			}
-			throw BadHashMap("No such element " + key);
+			if((*region)[i]==key)
+				return _values[hashCode][i];
 		}
+		throw BadHashMap("No such element " + key);
+	}
 	void add(const Key& key, const Value& value)
-		{
-			const size_t hashCode(getHashCode(key));
-			_values[hashCode].push_back(value);
-			_keys[hashCode].push_back(key);
-		}
+	{
+		const size_t hashCode(getHashCode(key));
+		_values[hashCode].push_back(value);
+		_keys[hashCode].push_back(key);
+	}
 	const Value& remove(const Key& key)
 	{
 		const unsigned int hashCode(getHashCode(key));
@@ -119,7 +121,7 @@ public:
 	}
 	const bool isEmpty() const
 	{
-		bool res(true);
+		bool res(!_values.empty());
 		for(unsigned int i(0);i<_values.size() && res;++i)
 		{
 			res = res && _values[i].empty();
@@ -129,7 +131,7 @@ public:
 private:
 	const size_t getHashCode(const Key& key) const
 	{
-		return hash<Key>()(key)%_values.size();
+		return _values.size() ? hash<Key>()(key)%_values.size() : 0;
 	}
 
 	vector<vector<Value>> _values;

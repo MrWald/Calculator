@@ -3,12 +3,10 @@
 #ifndef _EVALUATOR_H_
 #define _EVALUATOR_H_
 
+#include <iostream>
 #include <string>
 #include "HashMap.h"
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
 
 // User of Evaluator defines signature of functions that will be used for specific type, as well as type itself
 template<class Element, class Function>
@@ -102,7 +100,7 @@ public:
 
     const Element parse() const
 	{
-		if(!_expression.compare(""))
+		if(_expression=="")
 			throw EvaluatorException("Expression undefined");
 		nextChar();
 		//Expression evaluation
@@ -254,7 +252,7 @@ private:
 		}
 		return res;
 	}
-	const Element parseOperator(const Element calculated) const
+	const Element parseOperator(const Element& calculated) const
 	{
 		Element res(0);
 		eatWhiteSpaces();
