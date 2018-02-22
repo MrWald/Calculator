@@ -3,12 +3,17 @@
 #ifndef _DOUBLE_H_
 #define _DOUBLE_H_
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "Evaluator.h"
 
 // Class Double, contains plane double and implements methods for evaluating expressions with this type by Evaluator class
 class Double
 {
 public:
+	// Defining signature of functions we will use in Evaluator for this class
+	typedef const Double (*Function)(const Double&);
 	class BadDouble
 	{
 	public:
@@ -23,7 +28,7 @@ public:
 	operator double() const {return _value;}
 
 //	For parsing with Evaluator
-	static const Double read(const Evaluator<Double>& ev, const int startPos, void (Evaluator<Double>::*move)()const)
+	static const Double read(const Evaluator<Double, Function>& ev, const int startPos, void (Evaluator<Double, Function>::*move)()const)
 	{
 		Double res;
 		if ((ev.getExpression()[startPos] == 'P' && ev.getExpression()[startPos+1] == 'I') 
@@ -75,9 +80,9 @@ Double& operator/=(Double& d1, const Double& d2)
 	return d1;
 }
 
-const Double operator/(const Double& d1, const Double& d2)
+const Double operator/(Double d1, const Double& d2)
 {
-	return operator/=( Double(d1), d2);
+	return operator/=( d1, d2);
 }
 
 const Double operator+(const Double& d)

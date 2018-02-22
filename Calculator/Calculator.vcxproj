@@ -63,6 +63,7 @@
   <ItemGroup>
     <ClInclude Include="Double.h" />
     <ClInclude Include="Evaluator.h" />
+    <ClInclude Include="Functions.h" />
     <ClInclude Include="HashMap.h" />
   </ItemGroup>
   <ItemGroup>

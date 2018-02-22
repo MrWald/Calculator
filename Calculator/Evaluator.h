@@ -3,9 +3,6 @@
 #ifndef _EVALUATOR_H_
 #define _EVALUATOR_H_
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 #include <string>
 #include "HashMap.h"
 
@@ -13,26 +10,15 @@
 #include <iostream>
 #endif
 
-using namespace std;
-
-template<class Element>
+// User of Evaluator defines signature of functions that will be used for specific type, as well as type itself
+template<class Element, class Function>
 class Evaluator
 {
 public:
-	// Types of Functions, Unary and Binary operators. For readability
-	typedef const Element (*Function)(const Element&, const bool);
+	// Types of Unary and Binary operators. For readability
+	//typedef const Element (*Function)(const Element&, const bool);
 	typedef const Element (*UnaryOperator)(const Element&);
 	typedef const Element (*BinaryOperator)(const Element&, const Element&);
-
-	//Transformation to radians/degrees
-	static const double toRadians(const double deg)
-	{
-		return (deg*M_PI)/180.f;
-	}
-	static const double toDegrees(const double rad)
-	{
-		return (rad*180.f)/M_PI;
-	}
 
 	// Class for giving exceptions
 	class EvaluatorException
@@ -51,16 +37,16 @@ public:
 	};
 
 	Evaluator(const HashMap<char, UnaryOperator>& unaryOperators, const HashMap<char, BinaryOperator>& binaryOperators,
-		const HashMap<string, Function>& functions, const string& exp="", const bool& rad=true)
-		: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _unaryOperators(unaryOperators), _binaryOperators(binaryOperators), _functions(functions), _rad(rad)
+		const HashMap<string, Function>& functions, const string& exp="")
+		: _id(++_freeId), _pos(-1), _ch(0), _expression(exp), _unaryOperators(unaryOperators), _binaryOperators(binaryOperators), _functions(functions)
 	{
 	#ifndef NDEBUG
 		cout << "Evaluator ID-" << _id << " created" << endl;
 	#endif
 	}
 
-	Evaluator(const Evaluator<Element>& ev)
-		: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _unaryOperators(ev._unaryOperators), _binaryOperators(ev._binaryOperators), _functions(ev._functions), _rad(ev._rad)
+	Evaluator(const Evaluator<Element, Function>& ev)
+		: _id(++_freeId), _pos(-1), _ch(0), _expression(ev._expression), _unaryOperators(ev._unaryOperators), _binaryOperators(ev._binaryOperators), _functions(ev._functions)
 	{
 	#ifndef NDEBUG
 		cout << "Evaluator ID-" << _id << " copied" << endl;
@@ -74,12 +60,11 @@ public:
 	#endif
 	}
 
-	Evaluator& operator=(const Evaluator<Element>& ev)
+	Evaluator& operator=(const Evaluator<Element, Function>& ev)
 	{
 		if(this!=&ev)
 		{
 			_expression = ev._expression;
-			_rad = ev._rad;
 			_functions = ev._functions;
 			_unaryOperators = ev._unaryOperators;
 			_binaryOperators = ev._binaryOperators;
@@ -115,11 +100,6 @@ public:
 		return _pos;
 	}
 
-	bool& rad()
-	{
-		return _rad;
-	}
-
     const Element parse() const
 	{
 		if(!_expression.compare(""))
@@ -151,7 +131,6 @@ private:
 	HashMap<string, Function> _functions;
 	HashMap<char, UnaryOperator> _unaryOperators;
 	HashMap<char, BinaryOperator> _binaryOperators;
-    mutable bool _rad;
 
 	//Reading next char of expression
 	void nextChar() const
@@ -240,7 +219,7 @@ private:
 			//If currently read char is a number move through expression until come across a non-digit, not dot or not letters responsible for constants
 			//If constant is read -> replace with number and process it again
 			if(Element::isElement(_expression, startPos))
-				x = Element::read(*this, startPos, &Evaluator<Element>::nextChar);
+				x = Element::read(*this, startPos, &Evaluator<Element, Function>::nextChar);
 			else 
 			{
 				//If read letter not responsible for constant -> process as a function
@@ -267,7 +246,7 @@ private:
 		res = parseFactor();
 		try
 		{
-			res = _functions[func](res, _rad);
+			res = _functions[func](res);
 		}
 		catch(...)
 		{
@@ -304,9 +283,9 @@ private:
 	}
 };
 
-template<class T>unsigned int Evaluator<T>::_freeId(0);
+template<class Element, class Function>unsigned int Evaluator<Element, Function>::_freeId(0);
 
-template<class T>ostream& operator<<(ostream& out, const Evaluator<T>& ev)
+template<class Element, class Function>ostream& operator<<(ostream& out, const Evaluator<Element, Function>& ev)
 {
 	return out << ev.parse();
 }
