@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include "Functions.h"
-#include "AComplex.h"
 
 void listCommands(const string commands[], const unsigned int& size)
 {
