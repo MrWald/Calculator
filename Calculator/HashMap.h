@@ -67,7 +67,7 @@ public:
 		cout << "Hash Map ID - " << _id << " copied" << endl;
 	#endif
 	}
-	HashMap& operator=(const HashMap<Key, Value>& map)
+	HashMap<Key, Value>& operator=(const HashMap<Key, Value>& map)
 	{
 		if(this!=&map)
 		{
@@ -96,25 +96,23 @@ public:
 		}
 		throw BadHashMap("No such element " + key);
 	}
-	void add(const Key& key, const Value& value)
+	HashMap<Key, Value>& add(const Key& key, const Value& value)
 	{
 		const size_t hashCode(getHashCode(key));
 		_values[hashCode].push_back(value);
 		_keys[hashCode].push_back(key);
+		return *this;
 	}
-	const Value& remove(const Key& key)
+	HashMap<Key, Value>& remove(const Key& key)
 	{
 		const unsigned int hashCode(getHashCode(key));
-		const vector<Key>* const region = &_keys[hashCode];
-		Value res;
 		for(unsigned int i(0);i<region->size();++i)
 		{
 			if((*region)[i]==key)
 			{
-				res = _values[hashCode][i];
 				_values[hashCode].erase(i);
 				_keys[hashCode].erase(i);
-				return res;
+				return *this;
 			}
 		}
 		throw BadHashMap("No such element " + key);
