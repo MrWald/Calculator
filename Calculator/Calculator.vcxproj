@@ -65,10 +65,15 @@
     <ClInclude Include="AComplex.h" />
     <ClInclude Include="Double.h" />
     <ClInclude Include="Evaluator.h" />
+    <ClInclude Include="Exception.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="HashMap.h" />
+    <ClInclude Include="Iterator.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AComplex.cpp" />
+    <ClCompile Include="Double.cpp" />
+    <ClCompile Include="Exception.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -10,6 +10,7 @@
 #include "Functions.h"
 #include "Exception.h"
 #include "Evaluator.h"
+#include <string>
 
 void listCommands(const string commands[], const unsigned int& size)
 {
