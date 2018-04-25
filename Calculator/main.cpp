@@ -8,6 +8,8 @@
 
 #include <iostream>
 #include "Functions.h"
+#include "Exception.h"
+#include "Evaluator.h"
 
 void listCommands(const string commands[], const unsigned int& size)
 {
@@ -68,15 +70,9 @@ int main()
 					cout << evC << endl;
 				}
 			}
-			catch(const Evaluator<Double, Double::Function>::EvaluatorException& e)
+			catch(const Exception& e)
 			{
-				cerr << e.error() << endl;
-				evaluator.setExpression("");
-				cout << "Enter 'help' if you forgot appropriate expressions" << endl;
-			}
-			catch(const Evaluator<AComplex, AComplex::Function>::EvaluatorException& e)
-			{
-				cerr << e.error() << endl;
+				cerr << e << endl;
 				evaluator.setExpression("");
 				cout << "Enter 'help' if you forgot appropriate expressions" << endl;
 			}

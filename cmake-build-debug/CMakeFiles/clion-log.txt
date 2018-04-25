@@ -1,0 +1,4 @@
+"/Users/wald/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/181.4445.84/CLion.app/Contents/bin/cmake/bin/cmake" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/wald/Calculator
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/wald/Calculator/cmake-build-debug

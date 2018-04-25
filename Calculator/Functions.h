@@ -5,6 +5,10 @@
 
 #include "Double.h"
 #include "AComplex.h"
+#include "HashMap.h"
+#include "Evaluator.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 bool Rad = true;
 
