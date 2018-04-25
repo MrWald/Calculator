@@ -16,4 +16,4 @@ add_executable(Calculator
         Calculator/Exception.cpp
         Calculator/main.cpp
         Calculator/AComplex.cpp
-        Calculator/Double.cpp)
+        Calculator/Double.cpp Calculator/Functions.cpp)
